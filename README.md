@@ -1,6 +1,6 @@
 # Proyecto 01 - ThreeJS
 ## Integrantes
-Jeamhowards Montiel, 19-10234
+Jeamhowards Montiel, 19-10234  
 Jesús Bovea, 19-10072
 
 ## Descripción
