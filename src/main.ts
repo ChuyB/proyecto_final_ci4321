@@ -1,6 +1,7 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
+import Box from "./box";
 
 const init = () => {
   // Se crea la escena
@@ -10,6 +11,7 @@ const init = () => {
   // Se crea el renderizador
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true; // Sombras
   document.body.appendChild(renderer.domElement);
 
   // Se crea la cámara
@@ -46,13 +48,25 @@ const init = () => {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = 0;
   ground.updateMatrix();
+  ground.receiveShadow = true;
   scene.add(ground);
+
+  // Se añade un cubo a la escena
+  const box = new Box(scene, 10);
+  box.figure.position.set(0, 10, 0);
 
   // Iluminación
   // Luz direccional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(1, 1, 1);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 7);
+  directionalLight.position.set(200, 200, 200);
+  directionalLight.castShadow = true;
+  directionalLight.shadow.camera.top += 100;
+  directionalLight.shadow.camera.left -= 100;
+  directionalLight.shadow.camera.bottom -= 100;
+  directionalLight.shadow.camera.right += 100;
   scene.add(directionalLight);
+  // Camera helper
+  //scene.add(new THREE.CameraHelper(directionalLight.shadow.camera));
 
   // Luz ambiental
   const light = new THREE.AmbientLight(0xffffff);
@@ -65,7 +79,7 @@ const init = () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  // Se inicia la animación
+  // Inicio del loop de la animación
   const animate = () => {
     controls.update();
     renderer.render(scene, camera);
