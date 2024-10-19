@@ -42,7 +42,7 @@ const init = () => {
   // Se añade el suelo de la escena
   const groundGeometry = new THREE.PlaneGeometry(1600, 1600);
   const groundMaterial = new THREE.MeshPhongMaterial({
-    color: 0x5c4327,
+    map: new THREE.TextureLoader().load("src/assets/Prototype_Textures/Dark/texture_05.png"),
   });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
@@ -56,15 +56,23 @@ const init = () => {
   box0.figure.position.set(0, 10, 0);
   const box1 = new Box(
     scene,
-    10,
-    "src/assets/Prototype_Textures/Dark/texture_13.png",
+    12,
+    "src/assets/Prototype_Textures/Purple/texture_01.png",
     { specular: 0x808080, shininess: 50 },
   );
-  box1.figure.position.set(50, 10, 5);
+  box1.figure.position.set(50, 12, 5);
+  const box2 = new Box(
+    scene,
+    5,
+    "src/assets/Prototype_Textures/Red/texture_05.png",
+    { specular: 0x808080, shininess: 50 },
+  );
+  box2.figure.position.set(20, 5, 30);
+
 
   // Iluminación
   // Luz direccional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
   directionalLight.position.set(200, 200, 200);
   directionalLight.castShadow = true;
   directionalLight.shadow.camera.top += 100;
