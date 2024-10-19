@@ -51,13 +51,20 @@ const init = () => {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // Se añade un cubo a la escena
-  const box = new Box(scene, 10);
-  box.figure.position.set(0, 10, 0);
+  // Se añaden cubos a la escena
+  const box0 = new Box(scene, 10);
+  box0.figure.position.set(0, 10, 0);
+  const box1 = new Box(
+    scene,
+    10,
+    "src/assets/Prototype_Textures/Dark/texture_13.png",
+    { specular: 0x808080, shininess: 50 },
+  );
+  box1.figure.position.set(50, 10, 5);
 
   // Iluminación
   // Luz direccional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 7);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
   directionalLight.position.set(200, 200, 200);
   directionalLight.castShadow = true;
   directionalLight.shadow.camera.top += 100;
