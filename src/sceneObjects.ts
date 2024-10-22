@@ -49,7 +49,7 @@ const addObjectsToScene = (scene: THREE.Scene) => {
 const addSkybox = (scene: THREE.Scene) => {
   const textureDir = "src/assets/Daylight Box_Pieces";
   const textures: THREE.Texture[] = [];
-  const sides = ["Front", "Back", "Up", "Down", "Right", "Left"];
+  const sides = ["Right", "Left", "Top", "Bottom", "Front", "Back"];
   sides.forEach((side) => {
     const texture = new THREE.TextureLoader().load(
       `${textureDir}/Daylight Box_${side}.bmp`,
