@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-interface TargetOptions {
+interface CylinderInterface {
   baseRadius?: number;
   topRadius?: number;
   height?: number;
@@ -12,23 +12,13 @@ interface TargetOptions {
 }
 
 /**
- * Clase que representa un objeto de tipo diana
+ * Clase que genera un cilindro
  */
-export default class Target {
-  public figure: THREE.Mesh;
+export default class Cylinder {
+  figure: THREE.Mesh;
 
-  private defaultOptions = {
-    baseRadius: 15,
-    topRadius: 15,
-    height: 2,
-    sectorCount: 50,
-    stackCount: 1,
-    textureSrc: "src/assets/Prototype_Textures/Dark/texture_09.png",
-    phongProperties: { specular: 0x808080, shininess: 50 },
-    shadow: true,
-  };
-
-  constructor(scene: THREE.Scene, options?: TargetOptions) {
+  constructor(options?: CylinderInterface) {
+    const defaultOptions = this.setDefaults();
     const {
       baseRadius,
       topRadius,
@@ -39,7 +29,7 @@ export default class Target {
       phongProperties,
       shadow,
     } = {
-      ...this.defaultOptions,
+      ...defaultOptions,
       ...options,
     };
 
@@ -62,19 +52,19 @@ export default class Target {
     const mesh = new THREE.Mesh(geometry, material);
     this.figure = mesh;
 
-    if (shadow) {
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-    }
+    // Añade sombras en caso de que se especifique
+    mesh.castShadow = shadow;
+    mesh.receiveShadow = shadow;
+  }
 
-    // Añade la figura a la escena
-    scene.add(mesh);
+  addToScene(scene: THREE.Scene) {
+    scene.add(this.figure);
   }
 
   /**
    * Crea la geometría de la figura
    */
-  createGeometry(
+  protected createGeometry(
     baseRadius: number,
     topRadius: number,
     height: number,
@@ -185,7 +175,11 @@ export default class Target {
   /**
    * Crea un material con textura para la figura
    */
-  createMaterial(textureSrc: string, specular: number, shininess: number) {
+  protected createMaterial(
+    textureSrc: string,
+    specular: number,
+    shininess: number,
+  ) {
     const texture = new THREE.TextureLoader().load(textureSrc);
 
     const material = new THREE.MeshPhongMaterial({
@@ -195,5 +189,21 @@ export default class Target {
     });
 
     return material;
+  }
+
+  /**
+   * Establece los valores por defecto de la figura
+   */
+  protected setDefaults() {
+    return {
+      baseRadius: 5,
+      topRadius: 5,
+      height: 30,
+      sectorCount: 50,
+      stackCount: 1,
+      textureSrc: "src/assets/Prototype_Textures/Dark/texture_09.png",
+      phongProperties: { specular: 0x808080, shininess: 50 },
+      shadow: true,
+    };
   }
 }

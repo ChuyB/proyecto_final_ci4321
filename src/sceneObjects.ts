@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import Box from "./objects/box";
-import Target from "./objects/target";
+import Box from "./objects/Box";
+import Target from "./objects/Target";
 import Tank from "./objects/tank/tank";
 
 /**
@@ -29,15 +29,17 @@ const addBoxes = (scene: THREE.Scene) => {
  * Añade dianas a la escena
  */
 const addTargets = (scene: THREE.Scene) => {
-  const target0 = new Target(scene);
+  const target0 = new Target();
+  target0.addToScene(scene);
   target0.figure.position.set(-50, 15, 30);
   target0.figure.rotation.y = Math.PI / 2;
 
-  const target1 = new Target(scene, {
+  const target1 = new Target({
     baseRadius: 10,
     topRadius: 10,
     textureSrc: "src/assets/Prototype_Textures/Orange/texture_06.png",
   });
+  target1.addToScene(scene);
   target1.figure.position.set(-45, 10, 75);
   target1.figure.rotation.y = Math.PI / 1.5;
 };
