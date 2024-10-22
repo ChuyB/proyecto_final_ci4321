@@ -1,0 +1,104 @@
+import * as THREE from "three";
+import { Scene } from "three";
+import Body from "./body";
+import Turret from "./turret";
+import Cannon from "./cannon";
+import Wheel from "./wheel";
+
+/**
+ * Class representing a tank.
+ */
+export default class Tank {
+  public body: THREE.Mesh;
+  public turret: THREE.Mesh;
+  public cannon: THREE.Mesh;
+  public wheels: THREE.Mesh[] = [];
+  private direction: number = 0;
+
+  /**
+   * Creates an instance of Tank.
+   * @param {THREE.Scene} scene - The scene to which the tank will be added.
+   */
+  constructor(scene: THREE.Scene) {
+    this.body = new Body(scene).figure;
+    this.turret = new Turret().figure;
+    this.cannon = new Cannon().figure;
+    this.createWheels();
+
+    // Position the turret on top of the body
+    this.turret.position.set(0, 8, 0);
+    this.body.add(this.turret);
+
+    // Position the cannon on the turret
+    this.cannon.position.set(0, 5, 10);
+    this.turret.add(this.cannon);
+
+    // Add wheels to the body
+    this.wheels.forEach(wheel => this.body.add(wheel));
+
+    // Add the complete tank to the scene
+    scene.add(this.body);
+  }
+
+  /**
+   * Creates the wheels of the tank and positions them.
+   */
+  private createWheels() {
+    // Define the positions for the wheels
+    const wheelPositions = [
+      [0, 2, 16],  // Front axle
+      [0, 2, 0],   // Middle axle
+      [0, 2, -16]  // Rear axle
+    ];
+
+    // Create and position each wheel
+    wheelPositions.forEach(pos => {
+      const wheel = new Wheel().figure;
+      wheel.position.set(pos[0], pos[1], pos[2]);
+      this.wheels.push(wheel);
+    });
+  }
+
+  /**
+   * Moves the tank in the direction it's facing.
+   * @param {number} speed - The speed at which the tank moves.
+   */
+  public move(speed: number) {
+    this.body.position.x -= Math.sin(this.direction) * speed;
+    this.body.position.z -= Math.cos(this.direction) * speed;
+    
+    // Rotate wheels
+    this.wheels.forEach(wheel => {
+      wheel.rotation.x += speed * 0.1;
+    });
+  }
+
+  /**
+   * Rotates the tank.
+   * @param {number} angle - The angle by which to rotate the tank.
+   */
+  public rotateTank(angle: number) {
+    this.direction += angle;
+    this.body.rotation.y = this.direction;
+  }
+
+  /**
+   * Rotates the turret.
+   * @param {number} angle - The angle by which to rotate the turret.
+   */
+  public rotateTurret(angle: number) {
+    this.turret.rotation.y += angle;
+  }
+
+  /**
+   * Elevates the cannon.
+   * @param {number} angle - The angle by which to elevate the cannon.
+   */
+  public elevateCannon(angle: number) {
+    const newAngle = this.cannon.rotation.x + angle;
+    // Limit cannon elevation between -15 and 30 degrees
+    if (newAngle >= -Math.PI / 12 && newAngle <= Math.PI / 6) {
+      this.cannon.rotation.x = newAngle;
+    }
+  }
+}
