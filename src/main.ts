@@ -2,7 +2,6 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
 import { addObjectsToScene, addSkybox } from "./sceneObjects";
-import Proyectile from "./objects/Proyectile";
 
 const init = () => {
   // Se crea la escena

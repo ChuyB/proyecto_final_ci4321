@@ -7,21 +7,24 @@ import Tank from "./objects/tank/tank";
  * Añade cajas a la escena
  */
 const addBoxes = (scene: THREE.Scene) => {
-  const box0 = new Box(scene, 10);
+  const box0 = new Box();
+  box0.addToScene(scene);
+
   box0.figure.position.set(0, 10, 0);
-  const box1 = new Box(
-    scene,
-    12,
-    "src/assets/Prototype_Textures/Purple/texture_01.png",
-    { specular: 0x808080, shininess: 50 },
-  );
+  const box1 = new Box({
+    size: 12,
+    textureSrc: "src/assets/Prototype_Textures/Purple/texture_01.png",
+    phongProperties: { specular: 0x808080, shininess: 50 },
+  });
+  box1.addToScene(scene);
   box1.figure.position.set(50, 12, 5);
-  const box2 = new Box(
-    scene,
-    5,
-    "src/assets/Prototype_Textures/Red/texture_05.png",
-    { specular: 0x808080, shininess: 50 },
-  );
+
+  const box2 = new Box({
+    size: 5,
+    textureSrc: "src/assets/Prototype_Textures/Red/texture_05.png",
+    phongProperties: { specular: 0x808080, shininess: 50 },
+  });
+  box2.addToScene(scene);
   box2.figure.position.set(20, 5, 30);
 };
 
