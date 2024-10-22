@@ -1,6 +1,7 @@
 import * as THREE from "three";
-import Box from "./box";
-import Target from "./target";
+import Box from "./objects/box";
+import Target from "./objects/target";
+import Tank from "./objects/tank/tank";
 
 /**
  * Añade cajas a la escena
@@ -41,11 +42,27 @@ const addTargets = (scene: THREE.Scene) => {
   target1.figure.rotation.y = Math.PI / 1.5;
 };
 
+/**
+ * Añade un tanque a la escena
+ */
+const addTank = (scene: THREE.Scene) => {
+  // Se añade un tanque a la escena
+  const tank = new Tank(scene);
+  tank.body.position.set(0, 2, 50);
+};
+
+/**
+ * Añade cajas y dianas a la escena
+ */
 const addObjectsToScene = (scene: THREE.Scene) => {
+  addTank(scene);
   addBoxes(scene);
   addTargets(scene);
 };
 
+/**
+ * Añade un skybox a la escena
+ */
 const addSkybox = (scene: THREE.Scene) => {
   const textureDir = "src/assets/Daylight Box_Pieces";
   const textures: THREE.Texture[] = [];

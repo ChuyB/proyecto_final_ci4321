@@ -1,7 +1,7 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
-import Tank from "./tank";
+import Tank from "./objects/tank/tank";
 import { addObjectsToScene, addSkybox } from "./sceneObjects";
 
 const init = () => {
