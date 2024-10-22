@@ -46,4 +46,24 @@ const addObjectsToScene = (scene: THREE.Scene) => {
   addTargets(scene);
 };
 
-export default addObjectsToScene;
+const addSkybox = (scene: THREE.Scene) => {
+  const textureDir = "src/assets/Daylight Box_Pieces";
+  const textures: THREE.Texture[] = [];
+  const sides = ["Front", "Back", "Up", "Down", "Right", "Left"];
+  sides.forEach((side) => {
+    const texture = new THREE.TextureLoader().load(
+      `${textureDir}/Daylight Box_${side}.bmp`,
+    );
+    textures.push(texture);
+  });
+
+  const skyboxGeometry = new THREE.BoxGeometry(1600, 1600, 1600);
+  const skyboxMaterials = textures.map(
+    (texture) =>
+      new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
+  );
+  const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+  scene.add(skybox);
+};
+
+export { addObjectsToScene, addSkybox };

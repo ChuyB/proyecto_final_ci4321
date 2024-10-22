@@ -2,7 +2,7 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
 import Tank from "./tank";
-import addObjectsToScene from "./sceneObjects";
+import { addObjectsToScene, addSkybox } from "./sceneObjects";
 
 const init = () => {
   // Se crea la escena
@@ -20,7 +20,7 @@ const init = () => {
     90,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000,
+    1300,
   );
   camera.position.set(100, 50, 0); // Posición inical de la cámara
 
@@ -43,7 +43,9 @@ const init = () => {
   // Se añade el suelo de la escena
   const groundGeometry = new THREE.PlaneGeometry(1600, 1600);
   const groundMaterial = new THREE.MeshPhongMaterial({
-    map: new THREE.TextureLoader().load("src/assets/Prototype_Textures/Dark/texture_05.png"),
+    map: new THREE.TextureLoader().load(
+      "src/assets/Prototype_Textures/Dark/texture_05.png",
+    ),
   });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
@@ -51,6 +53,9 @@ const init = () => {
   ground.updateMatrix();
   ground.receiveShadow = true;
   scene.add(ground);
+
+  // Se añade el skybox
+  addSkybox(scene);
 
   // Se añaden objetos a la escena
   addObjectsToScene(scene);
@@ -96,7 +101,7 @@ const init = () => {
         break;
       case "d":
         tank.rotateTurret(-0.1);
-        break
+        break;
       case "ArrowDown":
         tank.elevateCannon(0.1);
         break;
