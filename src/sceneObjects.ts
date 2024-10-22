@@ -49,6 +49,29 @@ const addTank = (scene: THREE.Scene) => {
   // Se añade un tanque a la escena
   const tank = new Tank(scene);
   tank.body.position.set(0, 2, 50);
+
+  document.addEventListener("keydown", (event) => {
+    switch (event.key) {
+      case "s":
+        tank.move(1);
+        break;
+      case "w":
+        tank.move(-1);
+        break;
+      case "a":
+        tank.rotateTurret(0.1);
+        break;
+      case "d":
+        tank.rotateTurret(-0.1);
+        break;
+      case "ArrowDown":
+        tank.elevateCannon(0.1);
+        break;
+      case "ArrowUp":
+        tank.elevateCannon(-0.1);
+        break;
+    }
+  });
 };
 
 /**

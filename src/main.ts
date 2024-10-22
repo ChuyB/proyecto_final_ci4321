@@ -1,7 +1,6 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
-import Tank from "./objects/tank/tank";
 import { addObjectsToScene, addSkybox } from "./sceneObjects";
 
 const init = () => {
@@ -60,10 +59,6 @@ const init = () => {
   // Se añaden objetos a la escena
   addObjectsToScene(scene);
 
-  // Se añade un tanque a la escena
-  const tank = new Tank(scene);
-  tank.body.position.set(0, 2, 50);
-
   // Iluminación
   // Luz direccional
   const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
@@ -86,29 +81,6 @@ const init = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-      case "s":
-        tank.move(1);
-        break;
-      case "w":
-        tank.move(-1);
-        break;
-      case "a":
-        tank.rotateTurret(0.1);
-        break;
-      case "d":
-        tank.rotateTurret(-0.1);
-        break;
-      case "ArrowDown":
-        tank.elevateCannon(0.1);
-        break;
-      case "ArrowUp":
-        tank.elevateCannon(-0.1);
-        break;
-    }
   });
 
   // Inicio del loop de la animación
