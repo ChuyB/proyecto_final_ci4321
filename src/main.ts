@@ -1,8 +1,8 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
-import Box from "./box";
 import Tank from "./tank";
+import addObjectsToScene from "./sceneObjects";
 
 const init = () => {
   // Se crea la escena
@@ -43,7 +43,7 @@ const init = () => {
   // Se añade el suelo de la escena
   const groundGeometry = new THREE.PlaneGeometry(1600, 1600);
   const groundMaterial = new THREE.MeshPhongMaterial({
-    color: 0x5c4327,
+    map: new THREE.TextureLoader().load("src/assets/Prototype_Textures/Dark/texture_05.png"),
   });
   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
   ground.rotation.x = -Math.PI / 2;
@@ -52,9 +52,8 @@ const init = () => {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // Se añade un cubo a la escena
-  const box = new Box(scene, 10);
-  box.figure.position.set(0, 10, 0);
+  // Se añaden objetos a la escena
+  addObjectsToScene(scene);
 
   // Se añade un tanque a la escena
   const tank = new Tank(scene);
@@ -62,7 +61,7 @@ const init = () => {
 
   // Iluminación
   // Luz direccional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 7);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
   directionalLight.position.set(200, 200, 200);
   directionalLight.castShadow = true;
   directionalLight.shadow.camera.top += 100;
