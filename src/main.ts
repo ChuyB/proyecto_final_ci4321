@@ -2,6 +2,8 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
 import Box from "./box";
+import Target from "./target";
+import addObjectsToScene from "./sceneObjects";
 
 const init = () => {
   // Se crea la escena
@@ -51,24 +53,8 @@ const init = () => {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // Se añaden cubos a la escena
-  const box0 = new Box(scene, 10);
-  box0.figure.position.set(0, 10, 0);
-  const box1 = new Box(
-    scene,
-    12,
-    "src/assets/Prototype_Textures/Purple/texture_01.png",
-    { specular: 0x808080, shininess: 50 },
-  );
-  box1.figure.position.set(50, 12, 5);
-  const box2 = new Box(
-    scene,
-    5,
-    "src/assets/Prototype_Textures/Red/texture_05.png",
-    { specular: 0x808080, shininess: 50 },
-  );
-  box2.figure.position.set(20, 5, 30);
-
+  // Se añaden objetos a la escena
+  addObjectsToScene(scene);
 
   // Iluminación
   // Luz direccional
