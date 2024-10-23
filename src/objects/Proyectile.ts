@@ -22,7 +22,7 @@ export default class Proyectile extends Cylinder {
   }
 
   /**
-   * Establece la caja de colisión de la diana
+   * Establece la caja de colisión del proyectil
    */
   private setBoundingBox = () => {
     const box = new Box({
@@ -35,7 +35,7 @@ export default class Proyectile extends Cylinder {
     });
     const greatestRadius = Math.max(
       this.dimensions.width,
-      this.dimensions.height,
+      this.dimensions.depth,
     );
     box.figure.scale.x = greatestRadius;
     box.figure.scale.y = greatestRadius;

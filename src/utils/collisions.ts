@@ -1,5 +1,7 @@
 import Cube from "../objects/primitives/Cube";
 import Primitive from "../objects/primitives/Primitive";
+import Proyectile from "../objects/Proyectile";
+import Target from "../objects/Target";
 
 const getMinVertices = (obj: Cube): number[] => {
   const minVertices: number[] = [Infinity, Infinity, Infinity]; // Initialize with max values
@@ -50,4 +52,24 @@ const checkCollision = (obj1: Primitive, obj2: Primitive): boolean => {
   );
 };
 
-export { checkCollision };
+const checkObjectsCollision = (objects: Primitive[]) => {
+  for (let i = 0; i < objects.length; i++) {
+    const obj1 = objects[i]; // Proyectil
+
+    if (!(obj1 instanceof Proyectile)) continue; // Solo chequea colisiones con proyectiles
+
+    for (let j = i + 1; j < objects.length; j++) {
+      const obj2 = objects[j]; // Diana
+      if (!(obj2 instanceof Target)) continue; // Solo chequea colisiones con dianas
+
+      if (checkCollision(obj1, obj2)) {
+        console.log("Collision detected");
+        // Elimina los objetos de la escena
+        obj1.figure.removeFromParent(); // Elimina el proyectil
+        obj2.figure.removeFromParent(); // Elimina la diana
+      }
+    }
+  }
+}
+
+export { checkObjectsCollision };

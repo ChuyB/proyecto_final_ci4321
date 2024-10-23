@@ -3,6 +3,7 @@ import "./style.css";
 import * as THREE from "three";
 import { addObjectsToScene, addSkybox, updateObjects } from "./utils/sceneObjects";
 import Primitive from "./objects/primitives/Primitive";
+import { checkObjectsCollision } from "./utils/collisions";
 
 const init = () => {
   const objects: Primitive[] = [];
@@ -90,6 +91,7 @@ const init = () => {
   const animate = () => {
     controls.update();
     updateObjects(objects); // Actualiza los objetos de la escena
+    checkObjectsCollision(objects); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(animate);
