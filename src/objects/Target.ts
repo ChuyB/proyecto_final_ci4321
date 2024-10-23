@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import Cylinder from "./primitives/Cylinder";
+import Box from "./Box";
 
 interface TargetOptions {
   baseRadius?: number;
@@ -18,6 +19,7 @@ interface TargetOptions {
 export default class Target extends Cylinder {
   constructor(options?: TargetOptions) {
     super(options);
+    this.setBoundingBox();
   }
 
   protected setDefaults() {
@@ -32,4 +34,28 @@ export default class Target extends Cylinder {
       shadow: true,
     };
   }
+
+  /**
+   * Establece la caja de colisión de la diana
+   */
+  private setBoundingBox = () => {
+    const box = new Box({
+      size: 0.5,
+      shadow: false,
+      material: new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        wireframe: true,
+      }),
+    });
+    const greatestRadius = Math.max(
+      this.dimensions.width,
+      this.dimensions.height,
+    );
+    box.figure.scale.x = greatestRadius;
+    box.figure.scale.y = greatestRadius;
+    box.figure.scale.z = this.dimensions.height;
+
+    this.boundingBox = box;
+    this.figure.add(box.figure);
+  };
 }

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Primitive from "./Primitive";
 
 interface CylinderInterface {
   baseRadius?: number;
@@ -14,10 +15,11 @@ interface CylinderInterface {
 /**
  * Clase que genera un cilindro
  */
-export default class Cylinder {
+export default class Cylinder extends Primitive {
   figure: THREE.Mesh;
 
   constructor(options?: CylinderInterface) {
+    super();
     const defaultOptions = this.setDefaults();
     const {
       baseRadius,
@@ -32,6 +34,13 @@ export default class Cylinder {
       ...defaultOptions,
       ...options,
     };
+
+    // Establece las dimensiones de la figura
+    this.dimensions = {
+      height: height,
+      width: baseRadius * 2,
+      depth: baseRadius * 2,
+    }
 
     // Crea la geometría
     const geometry = this.createGeometry(

@@ -1,9 +1,12 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
-import { addObjectsToScene, addSkybox } from "./sceneObjects";
+import { addObjectsToScene, addSkybox, updateObjects } from "./utils/sceneObjects";
+import Primitive from "./objects/primitives/Primitive";
 
 const init = () => {
+  const objects: Primitive[] = [];
+
   // Se crea la escena
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb);
@@ -57,7 +60,7 @@ const init = () => {
   addSkybox(scene);
 
   // Se añaden objetos a la escena
-  addObjectsToScene(scene);
+  addObjectsToScene(scene, objects);
 
   // Iluminación
   // Luz direccional
@@ -86,6 +89,7 @@ const init = () => {
   // Inicio del loop de la animación
   const animate = () => {
     controls.update();
+    updateObjects(objects); // Actualiza los objetos de la escena
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(animate);

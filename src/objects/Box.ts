@@ -10,6 +10,7 @@ export default class Box extends Cube {
       size: 10,
       textureSrc: "src/assets/Prototype_Textures/Dark/texture_13.png",
       phongProperties: { specular: 0x808080, shininess: 50 },
+      shadow: true,
     };
   }
 }

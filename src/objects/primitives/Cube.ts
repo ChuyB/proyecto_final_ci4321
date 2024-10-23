@@ -1,32 +1,53 @@
 import * as THREE from "three";
+import Primitive from "./Primitive";
 
 interface CubeInterface {
   size?: number;
   textureSrc?: string;
+  shadow?: boolean;
   phongProperties?: { specular: number; shininess: number };
+  material?: THREE.Material;
 }
 
 /**
  * Clase que genera un cubo
  */
-export default class Cube {
+export default class Cube extends Primitive{
   figure: THREE.Mesh;
 
   /**
    * Constructor de la clase
    */
   constructor(options?: CubeInterface) {
+    super();
     const defaultOptions = this.setDefaults();
-    const { size, textureSrc, phongProperties } = {
+    const { 
+      size,
+      textureSrc,
+      phongProperties,
+      material,
+      shadow,
+    } = {
       ...defaultOptions,
       ...options,
     };
-    const geometry = this.createGeometry(size);
-    const material = this.createMaterial(textureSrc, phongProperties);
-    const mesh = new THREE.Mesh(geometry, material);
 
-    mesh.receiveShadow = true;
-    mesh.castShadow = true;
+    // Establece las dimensiones de la figura
+    this.dimensions = {
+      height: size,
+      width: size,
+      depth: size,
+    }
+
+    const geometry = this.createGeometry(size);
+    const nMaterial = material
+      ? material
+      : this.createMaterial(textureSrc, phongProperties);
+
+    const mesh = new THREE.Mesh(geometry, nMaterial);
+
+    mesh.receiveShadow = shadow;
+    mesh.castShadow = shadow;
     this.figure = mesh;
   }
 
@@ -164,6 +185,7 @@ export default class Cube {
       size: 1,
       textureSrc: "src/assets/Prototype_Textures/Dark/texture_02.png",
       phongProperties: { specular: 0xffffff, shininess: 50 },
+      shadow: true,
     };
   }
 

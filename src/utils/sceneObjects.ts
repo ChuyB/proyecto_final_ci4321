@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import Box from "./objects/Box";
-import Target from "./objects/Target";
-import Tank from "./objects/tank/tank";
+import Box from "../objects/Box";
+import Target from "../objects/Target";
+import Tank from "../objects/tank/tank";
+import Primitive from "../objects/primitives/Primitive";
 
 /**
  * Añade cajas a la escena
@@ -26,6 +27,8 @@ const addBoxes = (scene: THREE.Scene) => {
   });
   box2.addToScene(scene);
   box2.figure.position.set(20, 5, 30);
+
+  return [box0, box1, box2];
 };
 
 /**
@@ -45,6 +48,8 @@ const addTargets = (scene: THREE.Scene) => {
   target1.addToScene(scene);
   target1.figure.position.set(-45, 10, 75);
   target1.figure.rotation.y = Math.PI / 1.5;
+
+  return [target0, target1];
 };
 
 /**
@@ -82,10 +87,11 @@ const addTank = (scene: THREE.Scene) => {
 /**
  * Añade cajas y dianas a la escena
  */
-const addObjectsToScene = (scene: THREE.Scene) => {
+const addObjectsToScene = (scene: THREE.Scene, objects: Primitive[]) => {
   addTank(scene);
-  addBoxes(scene);
-  addTargets(scene);
+  const boxes = addBoxes(scene);
+  const targets = addTargets(scene);
+  objects.push(...boxes, ...targets);
 };
 
 /**
@@ -111,4 +117,10 @@ const addSkybox = (scene: THREE.Scene) => {
   scene.add(skybox);
 };
 
-export { addObjectsToScene, addSkybox };
+const updateObjects = (objects: Primitive[]) => {
+  objects.forEach((object) => {
+    object.update();
+  });
+};
+
+export { addObjectsToScene, addSkybox, updateObjects };
