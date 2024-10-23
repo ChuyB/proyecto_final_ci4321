@@ -49,7 +49,7 @@ export default class Target extends Cylinder {
     });
     const greatestRadius = Math.max(
       this.dimensions.width,
-      this.dimensions.height,
+      this.dimensions.depth,
     );
     box.figure.scale.x = greatestRadius;
     box.figure.scale.y = greatestRadius;
