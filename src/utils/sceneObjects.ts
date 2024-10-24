@@ -95,7 +95,7 @@ const addSkybox = (scene: THREE.Scene) => {
   scene.add(skybox);
 };
 
-const updateObjects = (objects: (Primitive | Tank)[], time: THREE.Clock) => {
+const updateObjects = (objects: (Primitive | Tank)[], time: number) => {
   objects.forEach((object) => {
     object.update(time);
   });

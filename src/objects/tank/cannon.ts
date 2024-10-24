@@ -1,15 +1,18 @@
 import * as THREE from "three";
+import Cylinder from "../primitives/Cylinder";
 
 /**
  * Class representing a cannon.
  */
 export default class Cannon {
   public figure: THREE.Mesh;
+  public head: THREE.Mesh;
 
   /**
    * Creates an instance of Cannon.
    */
   constructor() {
+    this.head = new THREE.Mesh();
     this.figure = this.createCannon();
   }
 
@@ -18,9 +21,9 @@ export default class Cannon {
    * @returns {THREE.Mesh} - The mesh representing the cannon.
    */
   private createCannon(): THREE.Mesh {
-    const radius = 2.5;  // Radius of the cannon
-    const length = 20;  // Length of the cannon
-    const radialSegments = 32;  // Number of segments to make it look smooth
+    const radius = 2.5; // Radius of the cannon
+    const length = 23; // Length of the cannon
+    const radialSegments = 32; // Number of segments to make it look smooth
     const vertices = [];
     const indices = [];
 
@@ -55,25 +58,46 @@ export default class Cannon {
 
     const positions = new Float32Array(vertices.flat());
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
 
     const material = new THREE.MeshStandardMaterial({
-      color: 0x2A2A2f,  // Dark grey
+      color: 0x2a2a2f, // Dark grey
       roughness: 0.4,
       metalness: 0.2,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
 
     const cannon = new THREE.Mesh(geometry, material);
     cannon.castShadow = true;
     cannon.receiveShadow = true;
 
+    // Rotate the cannon to be horizontal
+    cannon.rotation.x = Math.PI / 2;
+
     // Make a group to change the pivot point of the cannon
     const group = new THREE.Mesh();
     cannon.position.z = length / 2;
     group.add(cannon);
+
+    // Create the head of the cannon
+    const headMaterial = new THREE.MeshPhongMaterial({
+      color: 0x2f2f2f, // Dark grey
+      specular: 0x808080,
+      shininess: 50,
+    })
+    const head = new Cylinder({
+      baseRadius: 2.6,
+      topRadius: 2.6,
+      height: 5,
+      material: headMaterial,
+    }).figure;
+    head.position.z = length; // Position the head at the end of the cannon
+
+    // Add the head to the group
+    this.head = head;
+    group.add(head);
 
     return group;
   }

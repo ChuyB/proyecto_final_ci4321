@@ -10,6 +10,7 @@ interface CylinderInterface {
   textureSrc?: string;
   phongProperties?: { specular: number; shininess: number };
   shadow?: boolean;
+  material?: THREE.Material;
 }
 
 /**
@@ -30,6 +31,7 @@ export default class Cylinder extends Primitive {
       textureSrc,
       phongProperties,
       shadow,
+      material,
     } = {
       ...defaultOptions,
       ...options,
@@ -40,7 +42,7 @@ export default class Cylinder extends Primitive {
       height: height,
       width: baseRadius * 2,
       depth: baseRadius * 2,
-    }
+    };
 
     // Crea la geometría
     const geometry = this.createGeometry(
@@ -51,14 +53,16 @@ export default class Cylinder extends Primitive {
       stackCount,
     );
     // Crea la textura
-    const material = this.createMaterial(
-      textureSrc,
-      phongProperties.specular,
-      phongProperties.shininess,
-    );
+    const nMaterial = material
+      ? material
+      : this.createMaterial(
+          textureSrc,
+          phongProperties.specular,
+          phongProperties.shininess,
+        );
 
     // Crea la figura
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, nMaterial);
     this.figure = mesh;
 
     // Añade sombras en caso de que se especifique

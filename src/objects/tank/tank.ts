@@ -13,6 +13,7 @@ export default class Tank {
   public body: THREE.Mesh;
   public turret: THREE.Mesh;
   public cannon: THREE.Mesh;
+  public cannonHead: THREE.Mesh;
   public wheels: THREE.Mesh[] = [];
   private projectiles: Proyectile[] = [];
   private lastShootTime: number = 0;
@@ -39,7 +40,9 @@ export default class Tank {
     this.cannonElevation = 0;
     this.body = new Body(scene).figure;
     this.turret = new Turret().figure;
-    this.cannon = new Cannon().figure;
+    const cannonGroup = new Cannon();
+    this.cannon = cannonGroup.figure;
+    this.cannonHead = cannonGroup.head;
     this.createWheels();
 
     // Position the turret on top of the body
@@ -82,9 +85,8 @@ export default class Tank {
   /**
    * Update method
    */
-  public update(time: THREE.Clock) {
+  public update(deltaTime: number) {
     // Gets delta time
-    const deltaTime = time.getDelta();
     const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.z ** 2);
 
     // Translate the tank in the direction it's facing
@@ -103,6 +105,15 @@ export default class Tank {
     if (newAngle >= -Math.PI / 6 && newAngle <= Math.PI / 24) {
       this.cannon.rotation.x += this.cannonElevation * deltaTime;
     }
+
+    // Updates projectiles
+    this.projectiles = this.projectiles.filter(projectile => {
+      const isActive = projectile.update(deltaTime);
+      if(!isActive) {
+        this.scene.remove(projectile.figure);
+      }
+      return isActive
+    });
 
     // Rotate wheels
     this.wheels.forEach((wheel) => {
@@ -123,10 +134,10 @@ export default class Tank {
       turretDir = 0,
       cannonDir = 0;
 
-=======
     // Eventos de teclado para controlar el tanque
     document.addEventListener("keydown", (event) => {
       switch (event.key) {
+        // Tank movement
         case "w":
           vx = Math.sin(this.body.rotation.y) * tankSpeed;
           vz = Math.cos(this.body.rotation.y) * tankSpeed;
@@ -142,6 +153,7 @@ export default class Tank {
           dir = -tankRotationSpeed;
           break;
         case "q":
+        // Turret and cannon movement
         case "ArrowLeft":
           turretDir = turretRotationSpeed;
           break;
@@ -156,6 +168,14 @@ export default class Tank {
         case "r":
         case "ArrowUp":
           cannonDir = -cannonElevationSpeed;
+          break;
+        // Shoot
+        case " ":
+          this.shoot();
+          break;
+        // Change type of shoot
+        case "c":
+          this.isLinearShoot = !this.isLinearShoot;
           break;
         default:
           break;
@@ -209,9 +229,9 @@ export default class Tank {
     const projectile = new Proyectile(this.isLinearShoot);
 
     const cannonWorldPosition = new THREE.Vector3();
-    this.cannon.getWorldPosition(cannonWorldPosition)
+    this.cannonHead.getWorldPosition(cannonWorldPosition)
 
-    const totalRotationY = this.direction + this.turret.rotation.y;
+    const totalRotationY = this.body.rotation.y + this.turret.rotation.y;
 
     projectile.shoot(
       cannonWorldPosition,
@@ -223,15 +243,5 @@ export default class Tank {
     this.projectiles.push(projectile);
     this.scene.add(projectile.figure)
     this.lastShootTime = currentTime;
-  }
-
-  public update(deltaTime: number) {
-    this.projectiles = this.projectiles.filter(projectile => {
-      const isActive = projectile.update(deltaTime);
-      if(!isActive) {
-        this.scene.remove(projectile.figure);
-      }
-      return isActive
-    });
   }
 }

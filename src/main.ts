@@ -92,9 +92,9 @@ const init = () => {
 
   // Inicio del loop de la animación
   const animate = () => {
-    const time = clock.getDelta();
+    const deltaTime = clock.getDelta();
     controls.update();
-    updateObjects(objects, time); // Actualiza los objetos de la escena
+    updateObjects(objects, deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(objects); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
   };

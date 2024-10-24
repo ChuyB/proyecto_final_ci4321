@@ -58,23 +58,23 @@ export default class Proyectile extends Cylinder {
     position: THREE.Vector3,
     direction: number,
     angle: number,
-    initialVelocity: number
+    initialVelocity: number,
   ) {
     this.isActive = true;
     this.figure.position.copy(position);
     this.initialPosition.copy(position);
 
-    const velocityXZ = initialVelocity*Math.sin(angle);
+    console.log(Math.sin(angle));
     this.velocity_vector.set(
-      Math.sin(direction)*velocityXZ,
-      initialVelocity * Math.cos(angle),
-      Math.cos(direction) * velocityXZ
-    )
-
+      Math.sin(direction) * initialVelocity,
+      Math.sin(angle) * -initialVelocity,
+      Math.cos(direction) * initialVelocity,
+    );
   }
 
-  public update(deltaTime?: number): boolean {
+  public update(deltaTime: number): boolean {
     if (!this.isActive) return false;
+
     if (deltaTime) {
       // Actualizar posición
       this.figure.position.x += this.velocity_vector.x * deltaTime;
@@ -85,9 +85,11 @@ export default class Proyectile extends Cylinder {
       if (!this.isLinearShoot) {
         this.velocity_vector.y -= this.gravity * deltaTime;
       }
-      
+
       // Orientar el proyectil
-      const targetPosition = this.figure.position.clone().add(this.velocity_vector);
+      const targetPosition = this.figure.position
+        .clone()
+        .add(this.velocity_vector);
       this.figure.lookAt(targetPosition);
 
       // Verificar si el proyectil ha caído por debajo del suelo
@@ -97,7 +99,7 @@ export default class Proyectile extends Cylinder {
         return false;
       }
 
-      // Verficar si el proyectil sobrepasa el techo 
+      // Verficar si el proyectil sobrepasa el techo
       if (this.figure.position.y > 100) {
         this.isActive = false;
         this.figure.position.y = 100;
@@ -105,9 +107,8 @@ export default class Proyectile extends Cylinder {
       }
 
       return true;
-    } 
+    }
 
-    console.log(this.velocity_vector);
     return false;
   }
 
