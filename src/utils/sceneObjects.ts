@@ -81,6 +81,9 @@ const addTank = (scene: THREE.Scene) => {
       case "k":
         tank.elevateCannon(-0.1);
         break;
+      case "q":
+        tank.isLinearShoot = !tank.isLinearShoot;
+        break;
       case " ":
         tank.shoot();
         break;

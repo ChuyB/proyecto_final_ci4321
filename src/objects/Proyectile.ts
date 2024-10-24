@@ -7,12 +7,14 @@ export default class Proyectile extends Cylinder {
   private gravity: number = 9.8;
   private isActive: boolean = false;
   private initialPosition: THREE.Vector3;
+  private isLinearShoot: boolean = false;
 
-  constructor(options?: any) {
+  constructor(isLinearShoot: boolean, options?: any) {
     super(options);
     this.setBoundingBox();
     this.velocity_vector = new THREE.Vector3();
     this.initialPosition = new THREE.Vector3();
+    this.isLinearShoot = isLinearShoot;
   }
 
   protected setDefaults() {
@@ -80,9 +82,11 @@ export default class Proyectile extends Cylinder {
       this.figure.position.z += this.velocity_vector.z * deltaTime;
 
       // Aplicar gravedad
-      this.velocity_vector.y -= this.gravity * deltaTime;
-
-      // Orient the projectile in the direction of the velocity vector
+      if (!this.isLinearShoot) {
+        this.velocity_vector.y -= this.gravity * deltaTime;
+      }
+      
+      // Orientar el proyectil
       const targetPosition = this.figure.position.clone().add(this.velocity_vector);
       this.figure.lookAt(targetPosition);
 

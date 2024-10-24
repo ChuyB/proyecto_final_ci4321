@@ -18,6 +18,7 @@ export default class Tank {
   private lastShootTime: number = 0;
   private shootCooldown: number = 1000;
   private scene: THREE.Scene;
+  public isLinearShoot: boolean = false;
 
   /**
    * Creates an instance of Tank.
@@ -113,7 +114,7 @@ export default class Tank {
       return;
     }
 
-    const projectile = new Proyectile();
+    const projectile = new Proyectile(this.isLinearShoot);
 
     const cannonWorldPosition = new THREE.Vector3();
     this.cannon.getWorldPosition(cannonWorldPosition)
