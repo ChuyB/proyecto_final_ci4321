@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { Scene } from "three";
 import Body from "./body";
 import Turret from "./turret";
 import Cannon from "./cannon";
 import Wheel from "./wheel";
+import Proyectile from "./../Proyectile"
 
 /**
  * Class representing a tank.
@@ -14,12 +14,17 @@ export default class Tank {
   public cannon: THREE.Mesh;
   public wheels: THREE.Mesh[] = [];
   private direction: number = 0;
+  private projectiles: Proyectile[] = [];
+  private lastShootTime: number = 0;
+  private shootCooldown: number = 1000;
+  private scene: THREE.Scene;
 
   /**
    * Creates an instance of Tank.
    * @param {THREE.Scene} scene - The scene to which the tank will be added.
    */
   constructor(scene: THREE.Scene) {
+    this.scene = scene;
     this.body = new Body(scene).figure;
     this.turret = new Turret().figure;
     this.cannon = new Cannon().figure;
@@ -95,10 +100,45 @@ export default class Tank {
    * @param {number} angle - The angle by which to elevate the cannon.
    */
   public elevateCannon(angle: number) {
-    const newAngle = this.cannon.rotation.x + angle;
+    const newAngle = this.cannon.rotation.x + 10;
     // Limit cannon elevation between -15 and 30 degrees
     if (newAngle >= -Math.PI / 12 && newAngle <= Math.PI / 6) {
       this.cannon.rotation.x = newAngle;
     }
+  }
+
+  public shoot(initialVelocity: number = 30) {
+    const currentTime = Date.now();
+    if (currentTime - this.lastShootTime < this.shootCooldown) {
+      return;
+    }
+
+    const projectile = new Proyectile();
+
+    const cannonWorldPosition = new THREE.Vector3();
+    this.cannon.getWorldPosition(cannonWorldPosition)
+
+    const totalRotationY = this.direction + this.turret.rotation.y;
+
+    projectile.shoot(
+      cannonWorldPosition,
+      totalRotationY,
+      this.cannon.rotation.x,
+      initialVelocity
+    );
+
+    this.projectiles.push(projectile);
+    this.scene.add(projectile.figure)
+    this.lastShootTime = currentTime;
+  }
+
+  public update(deltaTime: number) {
+    this.projectiles = this.projectiles.filter(projectile => {
+      const isActive = projectile.update(deltaTime);
+      if(!isActive) {
+        this.scene.remove(projectile.figure);
+      }
+      return isActive
+    });
   }
 }
