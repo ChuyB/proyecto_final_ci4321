@@ -3,9 +3,16 @@ import Box from "./Box";
 import Cylinder from "./primitives/Cylinder";
 
 export default class Proyectile extends Cylinder {
+  private velocity_vector: THREE.Vector3;
+  private gravity: number = 9.8;
+  private isActive: boolean = false;
+  private initialPosition: THREE.Vector3;
+
   constructor(options?: any) {
     super(options);
     this.setBoundingBox();
+    this.velocity_vector = new THREE.Vector3();
+    this.initialPosition = new THREE.Vector3();
   }
 
   protected setDefaults() {
@@ -45,4 +52,64 @@ export default class Proyectile extends Cylinder {
     this.figure.add(box.figure);
   };
 
+  public shoot(
+    position: THREE.Vector3,
+    direction: number,
+    angle: number,
+    initialVelocity: number
+  ) {
+    this.isActive = true;
+    this.figure.position.copy(position);
+    this.initialPosition.copy(position);
+
+    const velocityXZ = initialVelocity*Math.sin(angle);
+    this.velocity_vector.set(
+      Math.sin(direction)*velocityXZ,
+      initialVelocity * Math.cos(angle),
+      Math.cos(direction) * velocityXZ
+    )
+
+  }
+
+  public update(deltaTime?: number): boolean {
+    if (!this.isActive) return false;
+    if (deltaTime) {
+      // Actualizar posición
+      this.figure.position.x += this.velocity_vector.x * deltaTime;
+      this.figure.position.y += this.velocity_vector.y * deltaTime;
+      this.figure.position.z += this.velocity_vector.z * deltaTime;
+
+      // Aplicar gravedad
+      this.velocity_vector.y -= this.gravity * deltaTime;
+
+      // Orient the projectile in the direction of the velocity vector
+      const targetPosition = this.figure.position.clone().add(this.velocity_vector);
+      this.figure.lookAt(targetPosition);
+
+      // Verificar si el proyectil ha caído por debajo del suelo
+      if (this.figure.position.y < 0) {
+        this.isActive = false;
+        this.figure.position.y = 0;
+        return false;
+      }
+
+      // Verficar si el proyectil sobrepasa el techo 
+      if (this.figure.position.y > 100) {
+        this.isActive = false;
+        this.figure.position.y = 100;
+        return false;
+      }
+
+      return true;
+    } 
+
+    console.log(this.velocity_vector);
+    return false;
+  }
+
+  public reset() {
+    this.isActive = false;
+    this.figure.position.copy(this.initialPosition);
+    this.velocity_vector.set(0, 0, 0);
+  }
 }
