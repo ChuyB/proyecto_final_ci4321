@@ -71,8 +71,7 @@ export default class Cannon {
     cannon.receiveShadow = true;
 
     // Rotate the cannon to be horizontal
-    cannon.rotation.x = Math.PI / 2;
-
+    cannon.rotation.x = Math.PI / 3;
     return cannon;
   }
 }
