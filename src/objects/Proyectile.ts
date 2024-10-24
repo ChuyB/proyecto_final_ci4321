@@ -64,7 +64,6 @@ export default class Proyectile extends Cylinder {
     this.figure.position.copy(position);
     this.initialPosition.copy(position);
 
-    console.log(Math.sin(angle));
     this.velocity_vector.set(
       Math.sin(direction) * initialVelocity,
       Math.sin(angle) * -initialVelocity,

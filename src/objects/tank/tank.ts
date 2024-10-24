@@ -127,6 +127,7 @@ export default class Tank {
     const tankRotationSpeed = 2;
     const turretRotationSpeed = 2;
     const cannonElevationSpeed = 2;
+    const proyectileSpeed = 50;
 
     let vx = 0,
       vz = 0,
@@ -171,7 +172,7 @@ export default class Tank {
           break;
         // Shoot
         case " ":
-          this.shoot();
+          this.shoot(proyectileSpeed);
           break;
         // Change type of shoot
         case "c":
@@ -187,6 +188,7 @@ export default class Tank {
       this.cannonElevation = cannonDir;
     });
 
+    // Resets velocity when key is released
     document.addEventListener("keyup", (event) => {
       switch (event.key) {
         case "s":
@@ -220,7 +222,7 @@ export default class Tank {
     });
   }
 
-  public shoot(initialVelocity: number = 30) {
+  public shoot(initialVelocity) {
     const currentTime = Date.now();
     if (currentTime - this.lastShootTime < this.shootCooldown) {
       return;
