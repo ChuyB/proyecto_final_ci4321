@@ -1,6 +1,7 @@
 import Cube from "../objects/primitives/Cube";
 import Primitive from "../objects/primitives/Primitive";
 import Proyectile from "../objects/Proyectile";
+import Tank from "../objects/tank/tank";
 import Target from "../objects/Target";
 
 const getMinVertices = (obj: Cube): number[] => {
@@ -52,7 +53,7 @@ const checkCollision = (obj1: Primitive, obj2: Primitive): boolean => {
   );
 };
 
-const checkObjectsCollision = (objects: Primitive[]) => {
+const checkObjectsCollision = (objects: (Primitive | Tank)[]) => {
   for (let i = 0; i < objects.length; i++) {
     const obj1 = objects[i]; // Proyectil
 

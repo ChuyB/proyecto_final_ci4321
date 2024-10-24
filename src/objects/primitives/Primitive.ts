@@ -1,3 +1,4 @@
+import { Clock } from "three";
 import Cube from "./Cube";
 
 export default class Primitive {
@@ -17,5 +18,5 @@ export default class Primitive {
     };
   }
 
-  update(): void {}
+  update(time: Clock): void {}
 }

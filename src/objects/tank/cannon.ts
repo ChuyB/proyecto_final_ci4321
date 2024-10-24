@@ -73,6 +73,11 @@ export default class Cannon {
     // Rotate the cannon to be horizontal
     cannon.rotation.x = Math.PI / 2;
 
-    return cannon;
+    // Make a group to change the pivot point of the cannon
+    const group = new THREE.Mesh();
+    cannon.position.z = length / 2;
+    group.add(cannon);
+
+    return group;
   }
 }

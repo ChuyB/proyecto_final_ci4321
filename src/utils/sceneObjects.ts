@@ -58,40 +58,19 @@ const addTargets = (scene: THREE.Scene) => {
 const addTank = (scene: THREE.Scene) => {
   // Se añade un tanque a la escena
   const tank = new Tank(scene);
-  tank.body.position.set(0, 2, 50);
+  tank.body.position.set(0, 2, 50); // Posición inicial del tanque
 
-  document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-      case "s":
-        tank.move(1);
-        break;
-      case "w":
-        tank.move(-1);
-        break;
-      case "a":
-        tank.rotateTurret(0.1);
-        break;
-      case "d":
-        tank.rotateTurret(-0.1);
-        break;
-      case "ArrowDown":
-        tank.elevateCannon(0.1);
-        break;
-      case "ArrowUp":
-        tank.elevateCannon(-0.1);
-        break;
-    }
-  });
+  return tank;
 };
 
 /**
  * Añade cajas y dianas a la escena
  */
-const addObjectsToScene = (scene: THREE.Scene, objects: Primitive[]) => {
-  addTank(scene);
+const addObjectsToScene = (scene: THREE.Scene, objects: (Primitive | Tank)[]) => {
   const boxes = addBoxes(scene);
   const targets = addTargets(scene);
-  objects.push(...boxes, ...targets);
+  const tank = addTank(scene);
+  objects.push(...boxes, ...targets, tank);
 };
 
 /**
@@ -117,9 +96,9 @@ const addSkybox = (scene: THREE.Scene) => {
   scene.add(skybox);
 };
 
-const updateObjects = (objects: Primitive[]) => {
+const updateObjects = (objects: (Primitive | Tank)[], time: THREE.Clock) => {
   objects.forEach((object) => {
-    object.update();
+    object.update(time);
   });
 };
 
