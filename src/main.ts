@@ -4,9 +4,11 @@ import * as THREE from "three";
 import { addObjectsToScene, addSkybox, updateObjects } from "./utils/sceneObjects";
 import Primitive from "./objects/primitives/Primitive";
 import { checkObjectsCollision } from "./utils/collisions";
+import Tank from "./objects/tank/tank";
 
 const init = () => {
   const objects: Primitive[] = [];
+  const clock = new THREE.Clock();
 
   // Se crea la escena
   const scene = new THREE.Scene();
@@ -61,7 +63,7 @@ const init = () => {
   addSkybox(scene);
 
   // Se añaden objetos a la escena
-  addObjectsToScene(scene, objects);
+  const tank = addObjectsToScene(scene, objects);
 
   // Iluminación
   // Luz direccional
@@ -86,11 +88,13 @@ const init = () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+  
 
   // Inicio del loop de la animación
   const animate = () => {
+    const deltaTime = clock.getDelta();
     controls.update();
-    updateObjects(objects); // Actualiza los objetos de la escena
+    updateObjects(objects, tank, deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(objects); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
   };
