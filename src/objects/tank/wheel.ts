@@ -76,7 +76,8 @@ export default class Wheel {
       color: 0x1A1A1A,
       roughness: 0.2,
       metalness: 0.2,
-      side: THREE.DoubleSide // Ensures both sides of the faces are visible
+      side: THREE.DoubleSide, // Ensures both sides of the faces are visible
+      wireframe: true
     });
 
     const wheel = new THREE.Mesh(geometry, material);

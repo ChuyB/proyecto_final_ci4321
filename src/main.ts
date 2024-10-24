@@ -7,8 +7,8 @@ import { checkObjectsCollision } from "./utils/collisions";
 import Tank from "./objects/tank/tank";
 
 const init = () => {
-  const objects: Primitive[] = [];
   const clock = new THREE.Clock();
+  const objects: (Primitive | Tank)[] = [];
 
   // Se crea la escena
   const scene = new THREE.Scene();
@@ -92,9 +92,9 @@ const init = () => {
 
   // Inicio del loop de la animación
   const animate = () => {
-    const deltaTime = clock.getDelta();
+    const time = clock.getDelta();
     controls.update();
-    updateObjects(objects, tank, deltaTime); // Actualiza los objetos de la escena
+    updateObjects(objects, time); // Actualiza los objetos de la escena
     checkObjectsCollision(objects); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
   };
