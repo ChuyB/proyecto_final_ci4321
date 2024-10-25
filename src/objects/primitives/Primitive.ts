@@ -1,6 +1,8 @@
+import { Object3D } from "three";
 import Cube from "./Cube";
 
 export default class Primitive {
+  figure: Object3D | undefined;
   velocity: number | undefined;
   boundingBox: Cube | undefined;
   dimensions: {

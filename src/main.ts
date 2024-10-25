@@ -1,17 +1,14 @@
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 import "./style.css";
 import * as THREE from "three";
-import { addObjectsToScene, addSkybox, updateObjects } from "./utils/sceneObjects";
-import Primitive from "./objects/primitives/Primitive";
+import Scene from "./utils/Scene";
 import { checkObjectsCollision } from "./utils/collisions";
-import Tank from "./objects/tank/tank";
 
 const init = () => {
   const clock = new THREE.Clock();
-  const objects: (Primitive | Tank)[] = [];
 
   // Se crea la escena
-  const scene = new THREE.Scene();
+  const scene = new Scene();
   scene.background = new THREE.Color(0x87ceeb);
 
   // Se crea el renderizador
@@ -45,43 +42,6 @@ const init = () => {
   //   BOTTOM: "KeyS",
   // };
 
-  // Se añade el suelo de la escena
-  const groundGeometry = new THREE.PlaneGeometry(1600, 1600);
-  const groundMaterial = new THREE.MeshPhongMaterial({
-    map: new THREE.TextureLoader().load(
-      "src/assets/Prototype_Textures/Dark/texture_05.png",
-    ),
-  });
-  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = 0;
-  ground.updateMatrix();
-  ground.receiveShadow = true;
-  scene.add(ground);
-
-  // Se añade el skybox
-  addSkybox(scene);
-
-  // Se añaden objetos a la escena
-  const tank = addObjectsToScene(scene, objects);
-
-  // Iluminación
-  // Luz direccional
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(200, 200, 200);
-  directionalLight.castShadow = true;
-  directionalLight.shadow.camera.top += 100;
-  directionalLight.shadow.camera.left -= 100;
-  directionalLight.shadow.camera.bottom -= 100;
-  directionalLight.shadow.camera.right += 100;
-  scene.add(directionalLight);
-  // Camera helper
-  //scene.add(new THREE.CameraHelper(directionalLight.shadow.camera));
-
-  // Luz ambiental
-  const light = new THREE.AmbientLight(0xffffff);
-  scene.add(light);
-
   // Se añade un listener para el evento de resize
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -89,13 +49,12 @@ const init = () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
   
-
   // Inicio del loop de la animación
   const animate = () => {
     const deltaTime = clock.getDelta();
     controls.update();
-    updateObjects(objects, deltaTime); // Actualiza los objetos de la escena
-    checkObjectsCollision(objects); // Comprueba las colisiones entre los proyectiles y las dianas
+    scene.updateObjects(deltaTime); // Actualiza los objetos de la escena
+    checkObjectsCollision(scene); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(animate);

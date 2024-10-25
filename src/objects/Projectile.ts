@@ -2,7 +2,7 @@ import * as THREE from "three";
 import Box from "./Box";
 import Cylinder from "./primitives/Cylinder";
 
-export default class Proyectile extends Cylinder {
+export default class Projectile extends Cylinder {
   private velocity_vector: THREE.Vector3;
   private gravity: number = 9.8;
   private isActive: boolean = false;

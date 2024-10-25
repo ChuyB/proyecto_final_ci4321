@@ -3,19 +3,20 @@ import Body from "./body";
 import Turret from "./turret";
 import Cannon from "./cannon";
 import Wheel from "./wheel";
-import Proyectile from "./../Proyectile"
+import Projectile from "../Projectile"
+import Scene from "../../utils/Scene";
 
 /**
  * Class representing a tank.
  */
 export default class Tank {
-  private scene: THREE.Scene;
+  private scene: Scene;
   public body: THREE.Mesh;
   public turret: THREE.Mesh;
   public cannon: THREE.Mesh;
   public cannonHead: THREE.Mesh;
   public wheels: THREE.Mesh[] = [];
-  private projectiles: Proyectile[] = [];
+  public projectiles: Projectile[] = [];
   private lastShootTime: number = 0;
   private shootCooldown: number = 1000;
   public isLinearShoot: boolean = false;
@@ -32,7 +33,7 @@ export default class Tank {
    * Creates an instance of Tank.
    * @param {THREE.Scene} scene - The scene to which the tank will be added.
    */
-  constructor(scene: THREE.Scene) {
+  constructor(scene: Scene) {
     this.scene = scene;
     this.velocity = { x: 0, y: 0, z: 0 };
     this.direction = 0;
@@ -110,7 +111,7 @@ export default class Tank {
     this.projectiles = this.projectiles.filter(projectile => {
       const isActive = projectile.update(deltaTime);
       if(!isActive) {
-        this.scene.remove(projectile.figure);
+        this.scene.removeObjectFromScene(projectile);
       }
       return isActive
     });
@@ -222,13 +223,13 @@ export default class Tank {
     });
   }
 
-  public shoot(initialVelocity) {
+  public shoot(initialVelocity: number) {
     const currentTime = Date.now();
     if (currentTime - this.lastShootTime < this.shootCooldown) {
       return;
     }
 
-    const projectile = new Proyectile(this.isLinearShoot);
+    const projectile = new Projectile(this.isLinearShoot);
 
     const cannonWorldPosition = new THREE.Vector3();
     this.cannonHead.getWorldPosition(cannonWorldPosition)
@@ -244,6 +245,7 @@ export default class Tank {
 
     this.projectiles.push(projectile);
     this.scene.add(projectile.figure)
+    this.scene.objects.push(projectile);
     this.lastShootTime = currentTime;
   }
 }
