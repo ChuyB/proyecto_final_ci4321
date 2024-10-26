@@ -1,8 +1,10 @@
+import * as THREE from "three";
 import Cube from "./primitives/Cube";
 
 export default class Box extends Cube {
   constructor(options?: any) {
     super(options);
+    this.setCollisionMesh();
   }
 
   protected setDefaults() {
@@ -13,4 +15,17 @@ export default class Box extends Cube {
       shadow: true,
     };
   }
+
+  private setCollisionMesh = () => {
+    const cube = new Cube({
+      size: this.dimensions.width,
+      material: new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        wireframe: true,
+      }),
+    });
+
+    this.collider = cube;
+    this.figure.add(cube.figure);
+  };
 }

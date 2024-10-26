@@ -1,8 +1,11 @@
+import * as THREE from "three";
 import Cube from "../objects/primitives/Cube";
 import Primitive from "../objects/primitives/Primitive";
+import Sphere from "../objects/primitives/Sphere";
 import Projectile from "../objects/Projectile";
 import Target from "../objects/Target";
-import Scene  from "./Scene";
+import Scene from "./Scene";
+import Box from "../objects/Box";
 
 const checkObjectsCollision = (scene: Scene) => {
   for (let i = 0; i < scene.objects.length; i++) {
@@ -13,65 +16,58 @@ const checkObjectsCollision = (scene: Scene) => {
     for (let j = 0; j < scene.objects.length; j++) {
       const obj2 = scene.objects[j]; // Diana
 
-      if (!(obj2 instanceof Target)) continue; // Solo chequea colisiones con dianas
+      // Solo chequea colisiones con dianas y cajas
+      if (!(obj2 instanceof Target) && !(obj2 instanceof Box)) continue;
 
-      console.log("Checking collision", checkCollision(obj1, obj2));
       if (checkCollision(obj1, obj2)) {
-        console.log("Collision detected");
         // Elimina los objetos de la escena
-        // scene.removeObjectFromScene(obj2); // Elimina el proyectil
+        scene.removeObjectFromScene(obj1); // Elimina el proyectil
+        scene.removeObjectFromScene(obj2); // Elimina la diana o caja
       }
     }
   }
 };
 
+// Revisa si dos objetos colisionan
 const checkCollision = (obj1: Primitive, obj2: Primitive): boolean => {
-  if (!obj1.boundingBox || !obj2.boundingBox) return false;
+  if (!obj1.collider || !obj2.collider) return false;
 
-  const minVertices1 = getMinVertices(obj1.boundingBox);
-  const maxVertices1 = getMaxVertices(obj1.boundingBox);
-  const minVertices2 = getMinVertices(obj2.boundingBox);
-  const maxVertices2 = getMaxVertices(obj2.boundingBox);
+  // Revisa las colisiones entre esferas y cubos
+  if (obj1.collider instanceof Sphere && obj2.collider instanceof Cube)
+    return checkSphereCubeCollision(obj1.collider, obj2.collider);
+  if (obj1.collider instanceof Cube && obj2.collider instanceof Sphere)
+    return checkSphereCubeCollision(obj2.collider, obj1.collider);
 
-  return (
-    minVertices1[0] <= maxVertices2[0] &&
-    maxVertices1[0] >= minVertices2[0] &&
-    minVertices1[1] <= maxVertices2[1] &&
-    maxVertices1[1] >= minVertices2[1] &&
-    minVertices1[2] <= maxVertices2[2] &&
-    maxVertices1[2] >= minVertices2[2]
-  );
+  return false;
 };
 
-const getMinVertices = (obj: Cube): number[] => {
-  const minVertices: number[] = [Infinity, Infinity, Infinity]; // Initialize with max values
-  const positions = obj.figure.geometry.attributes.position.array;
+// Revisa las colisiones entre una esfera y un cubo
+const checkSphereCubeCollision = (sphere: Sphere, cube: Cube): boolean => {
+  const cubeSize = cube.getDimensions();
+  const sphereSize = sphere.getDimensions();
+  let spherePosition = new THREE.Vector3();
+  let cubePosition = new THREE.Vector3();
+  sphere.figure.getWorldPosition(spherePosition);
+  cube.figure.getWorldPosition(cubePosition);
 
-  for (let i = 0; i < positions.length; i += 3) {
-    const x = positions[i];
-    const y = positions[i + 1];
-    const z = positions[i + 2];
+  const sphereXDistance = Math.abs(spherePosition.x - cubePosition.x);
+  const sphereYDistance = Math.abs(spherePosition.y - cubePosition.y);
+  const sphereZDistance = Math.abs(spherePosition.z - cubePosition.z);
 
-    if (x < minVertices[0]) minVertices[0] = x;
-    if (y < minVertices[1]) minVertices[1] = y;
-    if (z < minVertices[2]) minVertices[2] = z;
-  }
+  if (sphereXDistance >= cubeSize.depth + sphereSize.depth) return false;
+  if (sphereYDistance >= cubeSize.height + sphereSize.height) return false;
+  if (sphereZDistance >= cubeSize.width + sphereSize.width) return false;
 
-  return minVertices;
-};
+  if (sphereXDistance < cubeSize.depth) return true;
+  if (sphereYDistance < cubeSize.height) return true;
+  if (sphereZDistance < cubeSize.width) return true;
 
-const getMaxVertices = (obj: Cube): number[] => {
-  const maxVertices: number[] = [-Infinity, -Infinity, -Infinity]; // Initialize with min values
-  const positions = obj.figure.geometry.attributes.position.array;
-  for (let i = 0; i < positions.length; i += 3) {
-    const x = positions[i];
-    const y = positions[i + 1];
-    const z = positions[i + 2];
-    if (x > maxVertices[0]) maxVertices[0] = x;
-    if (y > maxVertices[1]) maxVertices[1] = y;
-    if (z > maxVertices[2]) maxVertices[2] = z;
-  }
-  return maxVertices;
+  const cornerDistance =
+    Math.pow(sphereXDistance - cubeSize.depth, 2) +
+    Math.pow(sphereYDistance - cubeSize.height, 2) +
+    Math.pow(sphereZDistance - cubeSize.width, 2);
+
+  return cornerDistance < Math.pow(sphereSize.width, 2);
 };
 
 export { checkObjectsCollision };

@@ -32,7 +32,7 @@ export default class Cube extends Primitive{
       ...options,
     };
 
-    // Establece las dimensiones de la figura
+    // Establece las dimensiones iniciales de la figura
     this.dimensions = {
       height: size,
       width: size,
@@ -189,8 +189,19 @@ export default class Cube extends Primitive{
     };
   }
 
+  /**
+   * Añade la figura a la escena
+   */
   addToScene(scene: THREE.Scene) {
     scene.add(this.figure);
+  }
+
+  getDimensions() {
+    return {
+      height: this.dimensions.height * this.figure.scale.y,
+      width: this.dimensions.width * this.figure.scale.x,
+      depth: this.dimensions.depth * this.figure.scale.z,
+    }
   }
 }
 

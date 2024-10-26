@@ -1,11 +1,12 @@
 import { Object3D } from "three";
 import Cube from "./Cube";
+import Sphere from "./Sphere";
 
 export default class Primitive {
   figure: Object3D | undefined;
   velocity: number | undefined;
-  boundingBox: Cube | undefined;
-  dimensions: {
+  collider: Cube | Sphere | undefined;
+  protected dimensions: {
     width: number;
     height: number;
     depth: number;
@@ -20,4 +21,7 @@ export default class Primitive {
   }
 
   update(deltaTime: number): void {}
+  getDimensions(): { width: number; height: number; depth: number } {
+    return this.dimensions;
+  }
 }

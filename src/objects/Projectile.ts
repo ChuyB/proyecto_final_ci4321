@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import Box from "./Box";
 import Cylinder from "./primitives/Cylinder";
+import Sphere from "./primitives/Sphere";
 
 export default class Projectile extends Cylinder {
   private velocity_vector: THREE.Vector3;
@@ -11,7 +12,7 @@ export default class Projectile extends Cylinder {
 
   constructor(isLinearShoot: boolean, options?: any) {
     super(options);
-    this.setBoundingBox();
+    this.setCollisionMesh();
     this.velocity_vector = new THREE.Vector3();
     this.initialPosition = new THREE.Vector3();
     this.isLinearShoot = isLinearShoot;
@@ -31,27 +32,19 @@ export default class Projectile extends Cylinder {
   }
 
   /**
-   * Establece la caja de colisión del proyectil
+   * Establece la malla de colisión del proyectil
    */
-  private setBoundingBox = () => {
-    const box = new Box({
-      size: 0.5,
-      shadow: false,
+  private setCollisionMesh = () => {
+    const sphere = new Sphere({
+      radius: 2,
       material: new THREE.MeshBasicMaterial({
         color: 0xffffff,
         wireframe: true,
       }),
     });
-    const greatestRadius = Math.max(
-      this.dimensions.width,
-      this.dimensions.depth,
-    );
-    box.figure.scale.x = greatestRadius;
-    box.figure.scale.y = greatestRadius;
-    box.figure.scale.z = this.dimensions.height;
 
-    this.boundingBox = box;
-    this.figure.add(box.figure);
+    this.collider = sphere;
+    this.figure.add(sphere.figure);
   };
 
   public shoot(
