@@ -7,19 +7,38 @@ import Primitive from "../objects/primitives/Primitive";
 export type SceneObject = Primitive | Tank;
 
 export default class Scene extends THREE.Scene {
-  // Objetos de la escena
-  objects: SceneObject[];
+  debugMode: boolean; // Modo de debug
+  objects: SceneObject[]; // Objetos de la escena
 
   // Constructor de la clase
   constructor() {
     super();
 
     this.objects = [];
+    this.debugMode = false;
 
     this.addObjectsToScene();
     this.addSkybox();
     this.addGround();
     this.addLights();
+
+    // Evento para activar el modo de debug con la tecla "m"
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "m") {
+        this.debugMode = !this.debugMode;
+        this.objects.map((object) => {
+          if (object instanceof Primitive) {
+            // Muestra los bordes de las figuras de colisión
+            if (object.collider === undefined) return;
+            const { material } = object.collider.figure;
+            if (material instanceof THREE.Material) {
+              material.visible = this.debugMode;
+              material.needsUpdate = true;
+            }
+          }
+        });
+      }
+    });
   }
 
   /**

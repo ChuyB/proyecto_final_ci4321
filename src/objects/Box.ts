@@ -19,7 +19,9 @@ export default class Box extends Cube {
   private setCollisionMesh = () => {
     const cube = new Cube({
       size: this.dimensions.width,
+      shadow: false,
       material: new THREE.MeshBasicMaterial({
+        visible: false,
         color: 0xffffff,
         wireframe: true,
       }),

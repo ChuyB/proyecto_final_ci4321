@@ -37,7 +37,9 @@ export default class Projectile extends Cylinder {
   private setCollisionMesh = () => {
     const sphere = new Sphere({
       radius: 2,
+      shadow: false,
       material: new THREE.MeshBasicMaterial({
+        visible: false,
         color: 0xffffff,
         wireframe: true,
       }),

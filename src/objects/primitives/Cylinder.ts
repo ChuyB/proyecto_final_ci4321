@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import Primitive from "./Primitive";
+import Scene from "../../utils/Scene";
 
 interface CylinderInterface {
   baseRadius?: number;
@@ -68,10 +69,6 @@ export default class Cylinder extends Primitive {
     // Añade sombras en caso de que se especifique
     mesh.castShadow = shadow;
     mesh.receiveShadow = shadow;
-  }
-
-  addToScene(scene: THREE.Scene) {
-    scene.add(this.figure);
   }
 
   /**

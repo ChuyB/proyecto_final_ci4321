@@ -43,6 +43,7 @@ export default class Target extends Cylinder {
       size: 0.5,
       shadow: false,
       material: new THREE.MeshBasicMaterial({
+        visible: false,
         color: 0xffffff,
         wireframe: true,
       }),

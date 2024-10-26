@@ -244,7 +244,7 @@ export default class Tank {
     );
 
     this.projectiles.push(projectile);
-    this.scene.add(projectile.figure)
+    projectile.addToScene(this.scene);
     this.scene.objects.push(projectile);
     this.lastShootTime = currentTime;
   }
