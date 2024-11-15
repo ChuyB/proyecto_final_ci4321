@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
 import Box from "../objects/Box";
 import Target from "../objects/Target";
 import Tank from "../objects/tank/tank";
@@ -17,10 +19,13 @@ export default class Scene extends THREE.Scene {
     this.objects = [];
     this.debugMode = false;
 
-    this.addObjectsToScene();
+    // this.addObjectsToScene();
+    // this.addGround();
+
     this.addSkybox();
-    this.addGround();
     this.addLights();
+    this.addLandscape();
+    this.addPlane();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -82,6 +87,7 @@ export default class Scene extends THREE.Scene {
    * Añade un skybox a la escena
    */
   private addSkybox() {
+    const size = 5000;
     const textureDir = "src/assets/Daylight Box_Pieces";
     const textures: THREE.Texture[] = [];
     const sides = ["Right", "Left", "Top", "Bottom", "Front", "Back"];
@@ -92,7 +98,7 @@ export default class Scene extends THREE.Scene {
       textures.push(texture);
     });
 
-    const skyboxGeometry = new THREE.BoxGeometry(1600, 1600, 1600);
+    const skyboxGeometry = new THREE.BoxGeometry(size, size, size);
     const skyboxMaterials = textures.map(
       (texture) =>
         new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
@@ -127,7 +133,7 @@ export default class Scene extends THREE.Scene {
     // Luz direccional
     const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
     directionalLight.position.set(200, 200, 200);
-    directionalLight.castShadow = true;
+    directionalLight.castShadow = false;
     directionalLight.shadow.camera.top += 100;
     directionalLight.shadow.camera.left -= 100;
     directionalLight.shadow.camera.bottom -= 100;
@@ -145,7 +151,21 @@ export default class Scene extends THREE.Scene {
    * Añade cajas a la escena
    */
   private addBoxes() {
-    const box0 = new Box();
+    const material0 = new THREE.MeshPhongMaterial({
+      map: new THREE.TextureLoader().load(
+        "src/assets/Scifi_Panels/Scifi_Panels_05_basecolor.jpg",
+      ),
+      normalMap: new THREE.TextureLoader().load(
+        "src/assets/Scifi_Panels/Scifi_Panels_05_normal.jpg",
+      ),
+      normalScale: new THREE.Vector2(5, 5),
+      aoMap: new THREE.TextureLoader().load(
+        "src/assets/Scifi_Panels/Scifi_Panels_05_ambientocclusion.jpg",
+      ),
+    });
+    const box0 = new Box({
+      material: material0,
+    });
     box0.addToScene(this);
 
     box0.figure.position.set(0, 10, 0);
@@ -197,5 +217,69 @@ export default class Scene extends THREE.Scene {
     const tank = new Tank(this);
     tank.body.position.set(0, 2, 50); // Posición inicial del tanque
     return tank;
+  }
+
+  private addLandscape() {
+    const modelDir = "src/assets/models/landscape/";
+
+    // Textures
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.setPath(modelDir);
+    const albedo = textureLoader.load("albedo.png");
+    const normalMap = textureLoader.load("normal.png");
+    const heightMap = textureLoader.load("height.png");
+
+
+    // Model
+    const objLoader = new OBJLoader();
+    objLoader.setPath(modelDir);
+    objLoader.load("landscape.obj", (object) => {
+      object.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          const material = mesh.material as THREE.MeshStandardMaterial;
+          material.map = albedo;
+          material.normalMap = normalMap;
+          material.displacementMap = heightMap;
+          material.displacementScale = 0.5;
+        }
+      })
+      object.position.set(-1000, 0, 1000);
+      // object.scale.set(0.01, 0.01, 0.01);
+      this.add(object);
+    });
+  }
+
+  private addPlane() {
+    const modelDir = "src/assets/models/plane/";
+
+    const mtlLoader = new MTLLoader();
+    const objLoader = new OBJLoader();
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.setPath(modelDir);
+
+    mtlLoader.setPath(modelDir);
+    mtlLoader.load("piper_pa18.mtl", (materials) => {
+      materials.preload();
+      objLoader.setMaterials(materials);
+      objLoader.setPath(modelDir);
+      objLoader.load("piper_pa18.obj", (object) => {
+        object.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            const material = mesh.material as THREE.MeshPhongMaterial;
+
+            material.bumpMap = textureLoader.load("piper_bump.jpg");
+            material.map = textureLoader.load("piper_diffuse.jpg");
+            material.specularMap = textureLoader.load("piper_refl.jpg");
+            material.needsUpdate = true;
+          }
+        })
+        object.position.set(-300, 150, 300);
+        const scale = 5;
+        object.scale.set(scale, scale, scale);
+        this.add(object);
+      });
+    })
   }
 }

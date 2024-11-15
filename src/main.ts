@@ -22,7 +22,7 @@ const init = () => {
     90,
     window.innerWidth / window.innerHeight,
     0.1,
-    1300,
+    5000,
   );
   camera.position.set(100, 50, 0); // Posición inical de la cámara
 

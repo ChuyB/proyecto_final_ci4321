@@ -156,6 +156,7 @@ export default class Cube extends Primitive{
       new THREE.Float32BufferAttribute(vertexArray.map(x => x * size), 3),
     );
     geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvArray, 2));
+    geometry.setAttribute("uv2", new THREE.Float32BufferAttribute(uvArray, 2));
     geometry.computeVertexNormals();
 
     return geometry;
