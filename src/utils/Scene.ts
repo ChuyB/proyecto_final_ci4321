@@ -5,12 +5,15 @@ import Box from "../objects/Box";
 import Target from "../objects/Target";
 import Tank from "../objects/tank/tank";
 import Primitive from "../objects/primitives/Primitive";
+import { Moon } from "../objects/Moon";
+import { Spaceship } from "../objects/Spaceship";
 
 export type SceneObject = Primitive | Tank;
 
 export default class Scene extends THREE.Scene {
   debugMode: boolean; // Modo de debug
   objects: SceneObject[]; // Objetos de la escena
+  camera: THREE.PerspectiveCamera; // Cámara de la escena
 
   // Constructor de la clase
   constructor() {
@@ -18,14 +21,23 @@ export default class Scene extends THREE.Scene {
 
     this.objects = [];
     this.debugMode = false;
+    // Set a default camera
+    this.camera = new THREE.PerspectiveCamera(
+      90,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      5000,
+    );
 
     // this.addObjectsToScene();
     // this.addGround();
 
-    this.addSkybox();
+    this.addStarsSkybox();
     this.addLights();
-    this.addLandscape();
-    this.addPlane();
+    // this.addLandscape();
+    // this.addPlane();
+    this.addShip();
+    this.addMoon();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -108,6 +120,30 @@ export default class Scene extends THREE.Scene {
   }
 
   /**
+   * Añade un skybox a la escena
+   */
+  private addStarsSkybox() {
+    const size = 5000;
+    const textureDir = "src/assets/skybox";
+    const textures: THREE.Texture[] = [];
+    const sides = ["right", "left", "top", "bottom", "front", "back"];
+    sides.forEach((side) => {
+      const texture = new THREE.TextureLoader().load(
+        `${textureDir}/${side}.png`,
+      );
+      textures.push(texture);
+    });
+
+    const skyboxGeometry = new THREE.BoxGeometry(size, size, size);
+    const skyboxMaterials = textures.map(
+      (texture) =>
+        new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
+    );
+    const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+    this.add(skybox);
+  }
+
+  /**
    * Añade el suelo de la escena
    */
   private addGround() {
@@ -131,7 +167,7 @@ export default class Scene extends THREE.Scene {
   private addLights() {
     // Iluminación
     // Luz direccional
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(200, 200, 200);
     directionalLight.castShadow = false;
     directionalLight.shadow.camera.top += 100;
@@ -229,7 +265,6 @@ export default class Scene extends THREE.Scene {
     const normalMap = textureLoader.load("normal.png");
     const heightMap = textureLoader.load("height.png");
 
-
     // Model
     const objLoader = new OBJLoader();
     objLoader.setPath(modelDir);
@@ -243,7 +278,7 @@ export default class Scene extends THREE.Scene {
           material.displacementMap = heightMap;
           material.displacementScale = 0.5;
         }
-      })
+      });
       object.position.set(-1000, 0, 1000);
       // object.scale.set(0.01, 0.01, 0.01);
       this.add(object);
@@ -274,12 +309,23 @@ export default class Scene extends THREE.Scene {
             material.specularMap = textureLoader.load("piper_refl.jpg");
             material.needsUpdate = true;
           }
-        })
+        });
         object.position.set(-300, 150, 300);
         const scale = 5;
         object.scale.set(scale, scale, scale);
         this.add(object);
       });
-    })
+    });
+  }
+
+  private addShip() {
+    new Spaceship(this);
+  }
+
+  private addMoon() {
+    const moon = new Moon();
+    moon.figure.position.set(-150, 0, 100);
+    this.objects.push(moon);
+    this.add(moon.figure);
   }
 }

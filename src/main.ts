@@ -9,7 +9,7 @@ const init = () => {
 
   // Se crea la escena
   const scene = new Scene();
-  scene.background = new THREE.Color(0x87ceeb);
+  scene.background = new THREE.Color(0x000000);
 
   // Se crea el renderizador
   const renderer = new THREE.WebGLRenderer();
@@ -17,14 +17,7 @@ const init = () => {
   renderer.shadowMap.enabled = true; // Sombras
   document.body.appendChild(renderer.domElement);
 
-  // Se crea la cámara
-  const camera = new THREE.PerspectiveCamera(
-    90,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    5000,
-  );
-  camera.position.set(100, 50, 0); // Posición inical de la cámara
+  const camera = scene.camera;
 
   // Controles generales
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -52,7 +45,7 @@ const init = () => {
   // Inicio del loop de la animación
   const animate = () => {
     const deltaTime = clock.getDelta();
-    controls.update();
+    // controls.update();
     scene.updateObjects(deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(scene); // Comprueba las colisiones entre los proyectiles y las dianas
     renderer.render(scene, camera);
