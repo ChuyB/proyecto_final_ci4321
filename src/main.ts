@@ -3,6 +3,7 @@ import "./style.css";
 import * as THREE from "three";
 import Scene from "./utils/Scene";
 import { checkObjectsCollision } from "./utils/collisions";
+import SpeedBar from "./objects/SpeedBar";
 
 const init = () => {
   const clock = new THREE.Clock();
@@ -18,6 +19,20 @@ const init = () => {
   document.body.appendChild(renderer.domElement);
 
   const camera = scene.camera;
+
+  const uiScene = new THREE.Scene();
+
+  const cameraOrtho = new THREE.OrthographicCamera(
+    window.innerWidth / -2,
+    window.innerWidth / 2,
+    window.innerHeight / 2,
+    window.innerHeight / -2,
+    1,
+    1000
+  );
+  cameraOrtho.position.z = 10; // Asegúrate de que la cámara ortográfica esté posicionada correctamente
+
+  const speedBar = new SpeedBar(uiScene);
 
   // Controles generales
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -40,15 +55,34 @@ const init = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    cameraOrtho.left = window.innerWidth / -2;
+    cameraOrtho.right = window.innerWidth / 2;
+    cameraOrtho.top = window.innerHeight / 2;
+    cameraOrtho.bottom = window.innerHeight / -2;
+    cameraOrtho.updateProjectionMatrix();
   });
-  
+
   // Inicio del loop de la animación
   const animate = () => {
     const deltaTime = clock.getDelta();
-    // controls.update();
+    controls.update(); // Actualiza los controles de órbita
     scene.updateObjects(deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(scene); // Comprueba las colisiones entre los proyectiles y las dianas
+
+    // Mantener la SpeedBar en la misma posición relativa a la cámara ortográfica
+    speedBar.setPosition(
+      -window.innerWidth / 2 + 80,
+      0,
+      0
+    );
+    speedBar.update();
+
+    renderer.autoClear = false;
+    renderer.clear();
     renderer.render(scene, camera);
+    renderer.clearDepth();
+    renderer.render(uiScene, cameraOrtho);
   };
   renderer.setAnimationLoop(animate);
 };
