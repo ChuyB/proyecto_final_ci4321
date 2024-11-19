@@ -4,6 +4,7 @@ import * as THREE from "three";
 import Scene from "./utils/Scene";
 import { checkObjectsCollision } from "./utils/collisions";
 import SpeedBar from "./objects/SpeedBar";
+import SpacecraftStats from "./objects/SpacecraftStats";
 
 const init = () => {
   const clock = new THREE.Clock();
@@ -33,6 +34,8 @@ const init = () => {
   cameraOrtho.position.z = 10; // Asegúrate de que la cámara ortográfica esté posicionada correctamente
 
   const speedBar = new SpeedBar(uiScene);
+  const spacecraftStats = new SpacecraftStats(0, 0);
+  uiScene.add(spacecraftStats);
 
   // Controles generales
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -67,6 +70,11 @@ const init = () => {
   const animate = () => {
     const deltaTime = clock.getDelta();
     controls.update(); // Actualiza los controles de órbita
+    if (scene.spaceship) {
+      const acceleration = scene.spaceship.getAcceleration();
+      const speed = scene.spaceship.getSpeed();
+      spacecraftStats.updateStats(speed, acceleration);
+    }
     scene.updateObjects(deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(scene); // Comprueba las colisiones entre los proyectiles y las dianas
 
@@ -74,6 +82,12 @@ const init = () => {
     speedBar.setPosition(
       -window.innerWidth / 2 + 80,
       0,
+      0
+    );
+
+    spacecraftStats.setPosition(
+      0,
+      -window.innerHeight / 2 + 80,
       0
     );
     speedBar.update();

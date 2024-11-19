@@ -295,4 +295,12 @@ export class Spaceship extends Primitive {
     this.acceleration = acceleration;
     this.maxSpeed = maxSpeed;
   }
+
+  public getAcceleration() {
+    return this.acceleration;
+  }
+
+  public getSpeed() {
+    return this.speed;
+  }
 }

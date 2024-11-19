@@ -15,7 +15,7 @@ export default class Scene extends THREE.Scene {
   debugMode: boolean; // Modo de debug
   objects: SceneObject[]; // Objetos de la escena
   camera: THREE.PerspectiveCamera; // Cámara de la escena
-
+  spaceship!: Spaceship;
   // Constructor de la clase
   constructor() {
     super();
@@ -319,7 +319,8 @@ export default class Scene extends THREE.Scene {
   }
 
   private addShip() {
-    new Spaceship(this);
+    const spaceship = new Spaceship(this);
+    this.spaceship = spaceship;
   }
 
   private addMoon() {
