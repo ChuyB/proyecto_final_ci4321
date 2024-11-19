@@ -7,6 +7,7 @@ import Tank from "../objects/tank/tank";
 import Primitive from "../objects/primitives/Primitive";
 import { Moon } from "../objects/Moon";
 import { Spaceship } from "../objects/Spaceship";
+import { Earth } from "../objects/Earth";
 
 export type SceneObject = Primitive | Tank;
 
@@ -34,10 +35,9 @@ export default class Scene extends THREE.Scene {
 
     this.addStarsSkybox();
     this.addLights();
-    // this.addLandscape();
-    // this.addPlane();
     this.addShip();
     this.addMoon();
+    this.addEarth();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -327,5 +327,12 @@ export default class Scene extends THREE.Scene {
     moon.figure.position.set(-150, 0, 100);
     this.objects.push(moon);
     this.add(moon.figure);
+  }
+
+  private addEarth() {
+    const earth = new Earth();
+    earth.figure.position.set(450, 0, 100);
+    this.objects.push(earth);
+    this.add(earth.figure);
   }
 }

@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import Primitive from "./Primitive";
-import Scene from "../../utils/Scene";
 
 interface SphereInterface {
   radius?: number;
