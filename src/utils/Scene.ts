@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
-import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
 import Box from "../objects/Box";
 import Target from "../objects/Target";
 import Tank from "../objects/tank/tank";
@@ -8,6 +6,7 @@ import Primitive from "../objects/primitives/Primitive";
 import { Moon } from "../objects/Moon";
 import { Spaceship } from "../objects/Spaceship";
 import { Earth } from "../objects/Earth";
+import MetallicSphere from "../objects/MetallicSphere";
 
 export type SceneObject = Primitive | Tank;
 
@@ -38,6 +37,7 @@ export default class Scene extends THREE.Scene {
     this.addShip();
     this.addMoon();
     this.addEarth();
+    this.addMetallicSphere();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -167,14 +167,14 @@ export default class Scene extends THREE.Scene {
   private addLights() {
     // Iluminación
     // Luz direccional
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(200, 200, 200);
-    directionalLight.castShadow = false;
-    directionalLight.shadow.camera.top += 100;
-    directionalLight.shadow.camera.left -= 100;
-    directionalLight.shadow.camera.bottom -= 100;
-    directionalLight.shadow.camera.right += 100;
-    this.add(directionalLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0);
+    // directionalLight.position.set(200, 200, 200);
+    // directionalLight.castShadow = false;
+    // directionalLight.shadow.camera.top += 100;
+    // directionalLight.shadow.camera.left -= 100;
+    // directionalLight.shadow.camera.bottom -= 100;
+    // directionalLight.shadow.camera.right += 100;
+    // this.add(directionalLight);
     // Guías de la sombra
     // this.add(new THREE.CameraHelper(directionalLight.shadow.camera));
 
@@ -187,24 +187,6 @@ export default class Scene extends THREE.Scene {
    * Añade cajas a la escena
    */
   private addBoxes() {
-    const material0 = new THREE.MeshPhongMaterial({
-      map: new THREE.TextureLoader().load(
-        "src/assets/Scifi_Panels/Scifi_Panels_05_basecolor.jpg",
-      ),
-      normalMap: new THREE.TextureLoader().load(
-        "src/assets/Scifi_Panels/Scifi_Panels_05_normal.jpg",
-      ),
-      normalScale: new THREE.Vector2(5, 5),
-      aoMap: new THREE.TextureLoader().load(
-        "src/assets/Scifi_Panels/Scifi_Panels_05_ambientocclusion.jpg",
-      ),
-    });
-    const box0 = new Box({
-      material: material0,
-    });
-    box0.addToScene(this);
-
-    box0.figure.position.set(0, 10, 0);
     const box1 = new Box({
       size: 12,
       textureSrc: "src/assets/Prototype_Textures/Purple/texture_01.png",
@@ -221,7 +203,7 @@ export default class Scene extends THREE.Scene {
     box2.addToScene(this);
     box2.figure.position.set(20, 5, 30);
 
-    return [box0, box1, box2];
+    return [box1, box2];
   }
 
   /**
@@ -255,69 +237,6 @@ export default class Scene extends THREE.Scene {
     return tank;
   }
 
-  private addLandscape() {
-    const modelDir = "src/assets/models/landscape/";
-
-    // Textures
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.setPath(modelDir);
-    const albedo = textureLoader.load("albedo.png");
-    const normalMap = textureLoader.load("normal.png");
-    const heightMap = textureLoader.load("height.png");
-
-    // Model
-    const objLoader = new OBJLoader();
-    objLoader.setPath(modelDir);
-    objLoader.load("landscape.obj", (object) => {
-      object.traverse((child) => {
-        if ((child as THREE.Mesh).isMesh) {
-          const mesh = child as THREE.Mesh;
-          const material = mesh.material as THREE.MeshStandardMaterial;
-          material.map = albedo;
-          material.normalMap = normalMap;
-          material.displacementMap = heightMap;
-          material.displacementScale = 0.5;
-        }
-      });
-      object.position.set(-1000, 0, 1000);
-      // object.scale.set(0.01, 0.01, 0.01);
-      this.add(object);
-    });
-  }
-
-  private addPlane() {
-    const modelDir = "src/assets/models/plane/";
-
-    const mtlLoader = new MTLLoader();
-    const objLoader = new OBJLoader();
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.setPath(modelDir);
-
-    mtlLoader.setPath(modelDir);
-    mtlLoader.load("piper_pa18.mtl", (materials) => {
-      materials.preload();
-      objLoader.setMaterials(materials);
-      objLoader.setPath(modelDir);
-      objLoader.load("piper_pa18.obj", (object) => {
-        object.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            const mesh = child as THREE.Mesh;
-            const material = mesh.material as THREE.MeshPhongMaterial;
-
-            material.bumpMap = textureLoader.load("piper_bump.jpg");
-            material.map = textureLoader.load("piper_diffuse.jpg");
-            material.specularMap = textureLoader.load("piper_refl.jpg");
-            material.needsUpdate = true;
-          }
-        });
-        object.position.set(-300, 150, 300);
-        const scale = 5;
-        object.scale.set(scale, scale, scale);
-        this.add(object);
-      });
-    });
-  }
-
   private addShip() {
     const spaceship = new Spaceship(this);
     this.spaceship = spaceship;
@@ -335,5 +254,16 @@ export default class Scene extends THREE.Scene {
     earth.figure.position.set(450, 0, 100);
     this.objects.push(earth);
     this.add(earth.figure);
+  }
+
+  private addMetallicSphere() {
+    const sphere = new MetallicSphere();
+    sphere.figure.position.set(30, 0, -150);
+    sphere.light.position.set(30, 0, -170);
+
+    this.objects.push(sphere);
+
+    this.add(sphere.figure);
+    this.add(sphere.light);
   }
 }
