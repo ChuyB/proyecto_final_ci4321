@@ -6,7 +6,7 @@ import { checkObjectsCollision } from "./utils/collisions";
 import SpeedBar from "./objects/SpeedBar";
 import SpacecraftStats from "./objects/SpacecraftStats";
 
-const init = () => {
+const init = async () => {
   const clock = new THREE.Clock();
 
   // Se crea la escena
@@ -35,6 +35,7 @@ const init = () => {
 
   const speedBar = new SpeedBar(uiScene);
   const spacecraftStats = new SpacecraftStats(0, 0);
+  await spacecraftStats.init();
   uiScene.add(spacecraftStats);
 
   // Controles generales
