@@ -1,13 +1,13 @@
 import * as THREE from 'three';
-import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import SpriteFont from '../utils/SpriteFont';
 
 class SpacecraftStats extends THREE.Object3D {
-  private speedText!: THREE.Mesh;
-  private accelerationText!: THREE.Mesh;
-  private font!: Font;
+  private speedText!: THREE.Group;
+  private accelerationText!: THREE.Group;
   private backgroundSprite!: THREE.Sprite;
   private group: THREE.Group;
+  private spriteFont: SpriteFont;
+  private isInitialized: boolean = false;
 
   /**
    * Creates an instance of SpacecraftStats.
@@ -16,75 +16,105 @@ class SpacecraftStats extends THREE.Object3D {
    */
   constructor(private speed: number, private acceleration: number) {
     super();
+    
+    this.group = new THREE.Group(); // Create a group to hold all elements
+    this.add(this.group); // Add the group to the object
+    
+    this.spriteFont = new SpriteFont(); // Initialize the sprite font
+  }
 
-    this.group = new THREE.Group();
-    this.add(this.group);
-
-    this.setupBackground();
-    this.setupText();
+  /**
+   * Initialize the component. Must be called after construction.
+   */
+  async init(): Promise<void> {
+    try {
+      // Initialize the sprite font first
+      await this.spriteFont.init();
+      
+      // Then load the background
+      await this.setupBackground();
+      
+      // Finally create the text
+      this.createText();
+      
+      this.isInitialized = true; // Mark as initialized
+    } catch (error) {
+      console.error('Error initializing SpacecraftStats:', error);
+    }
   }
 
   /**
    * Sets up the background sprite for the stats display.
    */
-  private setupBackground() {
-    const textureLoader = new THREE.TextureLoader();
-    const backgroundTexture = textureLoader.load('src/assets/spacecraft_stats/buttonStock1d.png'); // Adjust the path as necessary
-    const backgroundMaterial = new THREE.SpriteMaterial({ map: backgroundTexture });
-    this.backgroundSprite = new THREE.Sprite(backgroundMaterial);
-    this.backgroundSprite.scale.set(250, 200, 1); // Adjust the size as necessary
-    this.group.add(this.backgroundSprite);
-  }
-
-  /**
-   * Sets up the text for displaying speed and acceleration.
-   */
-  private setupText() {
-    const fontLoader = new FontLoader();
-    fontLoader.load('src/assets/fonts/helvetiker_regular.typeface.json', (font) => {
-      this.font = font;
-      this.createText();
+  private async setupBackground(): Promise<void> {
+    return new Promise((resolve) => {
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(
+        '/src/assets/spacecraft_stats/buttonStock1d.png', // Path to the background texture
+        (backgroundTexture) => {
+          const backgroundMaterial = new THREE.SpriteMaterial({ map: backgroundTexture });
+          this.backgroundSprite = new THREE.Sprite(backgroundMaterial);
+          this.backgroundSprite.scale.set(250, 200, 1); // Set the scale of the background sprite
+          this.group.add(this.backgroundSprite); // Add the background sprite to the group
+          resolve();
+        },
+        undefined,
+        (error) => {
+          console.error('Error loading background texture:', error);
+          resolve(); // Resolve anyway to avoid blocking
+        }
+      );
     });
   }
 
   /**
-   * Creates the text meshes for speed and acceleration.
+   * Creates the text displays.
    */
   private createText() {
-    const text_speed = `Velocidad: ${this.speed.toFixed(2)} km/s`;
-    const speedGeometry = new TextGeometry(text_speed, {
-      font: this.font,
-      size: 10,
-      height: 1,
-    });
-    this.speedText = new THREE.Mesh(speedGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    this.speedText.position.set(-3 * text_speed.length, 10, 0.1); // Adjust the position to be over the sprite
-    this.group.add(this.speedText);
+    // Remove existing text
+    if (this.speedText) this.group.remove(this.speedText);
+    if (this.accelerationText) this.group.remove(this.accelerationText);
 
-    const text_acceleration = `Aceleracion: ${this.acceleration.toFixed(2)} m/s²`;
-    const accelerationGeometry = new TextGeometry(text_acceleration, {
-      font: this.font,
-      size: 10,
-      height: 1,
+    // Create speed text
+    const speedString = `Velocidad: ${this.speed.toFixed(2)} km/s`;
+    const newSpeedText = this.spriteFont.createText(speedString, {
+      color: 0xffffff, // White color
+      fontSize: 8.5, // Font size
+      spacing: 0.85 // Spacing between characters
     });
-    this.accelerationText = new THREE.Mesh(accelerationGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    this.accelerationText.position.set(-3 * text_acceleration.length, -10, 0.1); // Adjust the position to be over the sprite
-    this.group.add(this.accelerationText);
+
+    if (newSpeedText) {
+      this.speedText = newSpeedText;
+      this.speedText.position.set(-speedString.length * 3.5, 10, 0.1); // Set position of the speed text
+      this.group.add(this.speedText); // Add speed text to the group
+    }
+
+    // Create acceleration text
+    const accelerationString = `Aceleración: ${this.acceleration.toFixed(2)} km/s²`;
+    const newAccelText = this.spriteFont.createText(accelerationString, {
+      color: 0xffffff, // White color
+      fontSize: 8.5, // Font size
+      spacing: 0.85 // Spacing between characters
+    });
+
+    if (newAccelText) {
+      this.accelerationText = newAccelText;
+      this.accelerationText.position.set(-accelerationString.length * 3.5, -10, 0.1); // Set position of the acceleration text
+      this.group.add(this.accelerationText); // Add acceleration text to the group
+    }
   }
 
   /**
-   * Updates the stats with new speed and acceleration values.
+   * Updates the stats with new values.
    * @param speed - The new speed of the spacecraft.
    * @param acceleration - The new acceleration of the spacecraft.
    */
   public updateStats(speed: number, acceleration: number) {
     this.speed = speed;
     this.acceleration = acceleration;
-
-    this.group.remove(this.speedText);
-    this.group.remove(this.accelerationText);
-
-    this.createText();
+    if (this.isInitialized) {
+      this.createText(); // Update the text if initialized
+    }
   }
 
   /**
@@ -94,7 +124,7 @@ class SpacecraftStats extends THREE.Object3D {
    * @param z - The Z position.
    */
   public setPosition(x: number, y: number, z: number) {
-    this.group.position.set(x, y, z);
+    this.group.position.set(x, y, z); // Set the position of the group
   }
 }
 
