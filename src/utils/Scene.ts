@@ -3,24 +3,41 @@ import Box from "../objects/Box";
 import Target from "../objects/Target";
 import Tank from "../objects/tank/tank";
 import Primitive from "../objects/primitives/Primitive";
+import { Moon } from "../objects/Moon";
+import { Spaceship } from "../objects/Spaceship";
+import { Earth } from "../objects/Earth";
+import MetallicSphere from "../objects/MetallicSphere";
 
 export type SceneObject = Primitive | Tank;
 
 export default class Scene extends THREE.Scene {
   debugMode: boolean; // Modo de debug
   objects: SceneObject[]; // Objetos de la escena
-
+  camera: THREE.PerspectiveCamera; // Cámara de la escena
+  spaceship!: Spaceship;
   // Constructor de la clase
   constructor() {
     super();
 
     this.objects = [];
     this.debugMode = false;
+    // Set a default camera
+    this.camera = new THREE.PerspectiveCamera(
+      90,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      5000,
+    );
 
-    this.addObjectsToScene();
-    this.addSkybox();
-    this.addGround();
+    // this.addObjectsToScene();
+    // this.addGround();
+
+    this.addStarsSkybox();
     this.addLights();
+    this.addShip();
+    this.addMoon();
+    this.addEarth();
+    this.addMetallicSphere();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -82,6 +99,7 @@ export default class Scene extends THREE.Scene {
    * Añade un skybox a la escena
    */
   private addSkybox() {
+    const size = 5000;
     const textureDir = "src/assets/Daylight Box_Pieces";
     const textures: THREE.Texture[] = [];
     const sides = ["Right", "Left", "Top", "Bottom", "Front", "Back"];
@@ -92,7 +110,31 @@ export default class Scene extends THREE.Scene {
       textures.push(texture);
     });
 
-    const skyboxGeometry = new THREE.BoxGeometry(1600, 1600, 1600);
+    const skyboxGeometry = new THREE.BoxGeometry(size, size, size);
+    const skyboxMaterials = textures.map(
+      (texture) =>
+        new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
+    );
+    const skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+    this.add(skybox);
+  }
+
+  /**
+   * Añade un skybox a la escena
+   */
+  private addStarsSkybox() {
+    const size = 5000;
+    const textureDir = "src/assets/skybox";
+    const textures: THREE.Texture[] = [];
+    const sides = ["right", "left", "top", "bottom", "front", "back"];
+    sides.forEach((side) => {
+      const texture = new THREE.TextureLoader().load(
+        `${textureDir}/${side}.png`,
+      );
+      textures.push(texture);
+    });
+
+    const skyboxGeometry = new THREE.BoxGeometry(size, size, size);
     const skyboxMaterials = textures.map(
       (texture) =>
         new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide }),
@@ -125,14 +167,14 @@ export default class Scene extends THREE.Scene {
   private addLights() {
     // Iluminación
     // Luz direccional
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-    directionalLight.position.set(200, 200, 200);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.camera.top += 100;
-    directionalLight.shadow.camera.left -= 100;
-    directionalLight.shadow.camera.bottom -= 100;
-    directionalLight.shadow.camera.right += 100;
-    this.add(directionalLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0);
+    // directionalLight.position.set(200, 200, 200);
+    // directionalLight.castShadow = false;
+    // directionalLight.shadow.camera.top += 100;
+    // directionalLight.shadow.camera.left -= 100;
+    // directionalLight.shadow.camera.bottom -= 100;
+    // directionalLight.shadow.camera.right += 100;
+    // this.add(directionalLight);
     // Guías de la sombra
     // this.add(new THREE.CameraHelper(directionalLight.shadow.camera));
 
@@ -145,10 +187,6 @@ export default class Scene extends THREE.Scene {
    * Añade cajas a la escena
    */
   private addBoxes() {
-    const box0 = new Box();
-    box0.addToScene(this);
-
-    box0.figure.position.set(0, 10, 0);
     const box1 = new Box({
       size: 12,
       textureSrc: "src/assets/Prototype_Textures/Purple/texture_01.png",
@@ -165,7 +203,7 @@ export default class Scene extends THREE.Scene {
     box2.addToScene(this);
     box2.figure.position.set(20, 5, 30);
 
-    return [box0, box1, box2];
+    return [box1, box2];
   }
 
   /**
@@ -197,5 +235,35 @@ export default class Scene extends THREE.Scene {
     const tank = new Tank(this);
     tank.body.position.set(0, 2, 50); // Posición inicial del tanque
     return tank;
+  }
+
+  private addShip() {
+    const spaceship = new Spaceship(this);
+    this.spaceship = spaceship;
+  }
+
+  private addMoon() {
+    const moon = new Moon();
+    moon.figure.position.set(-150, 0, 100);
+    this.objects.push(moon);
+    this.add(moon.figure);
+  }
+
+  private addEarth() {
+    const earth = new Earth();
+    earth.figure.position.set(450, 0, 100);
+    this.objects.push(earth);
+    this.add(earth.figure);
+  }
+
+  private addMetallicSphere() {
+    const sphere = new MetallicSphere();
+    sphere.figure.position.set(30, 0, -150);
+    sphere.light.position.set(30, 0, -170);
+
+    this.objects.push(sphere);
+
+    this.add(sphere.figure);
+    this.add(sphere.light);
   }
 }

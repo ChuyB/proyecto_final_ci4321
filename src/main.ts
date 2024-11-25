@@ -3,13 +3,15 @@ import "./style.css";
 import * as THREE from "three";
 import Scene from "./utils/Scene";
 import { checkObjectsCollision } from "./utils/collisions";
+import SpeedBar from "./objects/SpeedBar";
+import SpacecraftStats from "./objects/SpacecraftStats";
 
-const init = () => {
+const init = async () => {
   const clock = new THREE.Clock();
 
   // Se crea la escena
   const scene = new Scene();
-  scene.background = new THREE.Color(0x87ceeb);
+  scene.background = new THREE.Color(0x000000);
 
   // Se crea el renderizador
   const renderer = new THREE.WebGLRenderer();
@@ -17,14 +19,24 @@ const init = () => {
   renderer.shadowMap.enabled = true; // Sombras
   document.body.appendChild(renderer.domElement);
 
-  // Se crea la cámara
-  const camera = new THREE.PerspectiveCamera(
-    90,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1300,
+  const camera = scene.camera;
+
+  const uiScene = new THREE.Scene();
+
+  const cameraOrtho = new THREE.OrthographicCamera(
+    window.innerWidth / -2,
+    window.innerWidth / 2,
+    window.innerHeight / 2,
+    window.innerHeight / -2,
+    1,
+    1000
   );
-  camera.position.set(100, 50, 0); // Posición inical de la cámara
+  cameraOrtho.position.z = 10; // Asegúrate de que la cámara ortográfica esté posicionada correctamente
+
+  const speedBar = new SpeedBar(uiScene);
+  const spacecraftStats = new SpacecraftStats(0, 0);
+  await spacecraftStats.init();
+  uiScene.add(spacecraftStats);
 
   // Controles generales
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -47,15 +59,45 @@ const init = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    cameraOrtho.left = window.innerWidth / -2;
+    cameraOrtho.right = window.innerWidth / 2;
+    cameraOrtho.top = window.innerHeight / 2;
+    cameraOrtho.bottom = window.innerHeight / -2;
+    cameraOrtho.updateProjectionMatrix();
   });
-  
+
   // Inicio del loop de la animación
   const animate = () => {
     const deltaTime = clock.getDelta();
-    controls.update();
+    controls.update(); // Actualiza los controles de órbita
+    if (scene.spaceship) {
+      const acceleration = scene.spaceship.getAcceleration();
+      const speed = scene.spaceship.getSpeed();
+      spacecraftStats.updateStats(speed, acceleration);
+    }
     scene.updateObjects(deltaTime); // Actualiza los objetos de la escena
     checkObjectsCollision(scene); // Comprueba las colisiones entre los proyectiles y las dianas
+
+    // Mantener la SpeedBar en la misma posición relativa a la cámara ortográfica
+    speedBar.setPosition(
+      -window.innerWidth / 2 + 80,
+      0,
+      0
+    );
+
+    spacecraftStats.setPosition(
+      0,
+      -window.innerHeight / 2 + 80,
+      0
+    );
+    speedBar.update();
+
+    renderer.autoClear = false;
+    renderer.clear();
     renderer.render(scene, camera);
+    renderer.clearDepth();
+    renderer.render(uiScene, cameraOrtho);
   };
   renderer.setAnimationLoop(animate);
 };
