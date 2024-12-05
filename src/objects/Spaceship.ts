@@ -18,9 +18,11 @@ export class Spaceship extends Primitive {
   private maxSpeed: number;
   private speedLevel: 0 | 1 | 2 | 3 | -1 | -2 | -3;
   private shouldStop: boolean;
+  private spotLight: THREE.SpotLight;
 
   constructor(scene: Scene) {
     super();
+    this.scene = scene;
     this.camera = scene.camera;
     this.speed = 0;
     this.acceleration = 0;
@@ -36,6 +38,7 @@ export class Spaceship extends Primitive {
     this.maxSpeed = 0;
     this.speedLevel = 0;
     this.shouldStop = false;
+    this.spotLight = new THREE.SpotLight(0xffffff, 0);
 
     const modelDir = "src/assets/models/ship/";
 
@@ -65,6 +68,7 @@ export class Spaceship extends Primitive {
         const scale = 0.01;
         object.scale.set(scale, scale, scale);
         this.figure = object;
+        this.setLight();
         scene.objects.push(this);
         scene.add(this.figure);
 
@@ -72,6 +76,25 @@ export class Spaceship extends Primitive {
         this.setControls();
       });
     });
+  }
+
+  setLight() {
+    if (this.figure === undefined) return;
+
+    this.spotLight.visible = true;
+    this.spotLight.angle = Math.PI / 4;
+    this.spotLight.penumbra = 0.5;
+    this.spotLight.decay = 1.5;
+    this.spotLight.distance = 200;
+
+    this.spotLight.castShadow = true;
+    this.spotLight.shadow.camera.near = 10;
+    this.spotLight.shadow.camera.far = 200;
+
+    this.spotLight.position.set(0, 0, -1);
+    this.spotLight.target = this.figure;
+
+    this.figure.add(this.spotLight);
   }
 
   update(deltaTime: number) {
@@ -218,6 +241,9 @@ export class Spaceship extends Primitive {
           if (this.speedLevel === 0) {
             this.shouldStop = true;
           }
+          break;
+        case "l":
+          this.spotLight.intensity = this.spotLight.intensity === 0 ? 100 : 0;
           break;
         default:
           break;
