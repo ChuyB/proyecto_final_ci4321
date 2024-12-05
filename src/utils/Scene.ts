@@ -7,6 +7,7 @@ import { Moon } from "../objects/Moon";
 import { Spaceship } from "../objects/Spaceship";
 import { Earth } from "../objects/Earth";
 import MetallicSphere from "../objects/MetallicSphere";
+import { Sun } from "../objects/Sun";
 
 export type SceneObject = Primitive | Tank;
 
@@ -37,7 +38,8 @@ export default class Scene extends THREE.Scene {
     this.addShip();
     this.addMoon();
     this.addEarth();
-    this.addMetallicSphere();
+    this.addSun();
+    // this.addMetallicSphere();
 
     // Evento para activar el modo de debug con la tecla "m"
     window.addEventListener("keydown", (event) => {
@@ -179,7 +181,7 @@ export default class Scene extends THREE.Scene {
     // this.add(new THREE.CameraHelper(directionalLight.shadow.camera));
 
     // Luz ambiental
-    const light = new THREE.AmbientLight(0xffffff);
+    const light = new THREE.AmbientLight(0xffffff, 0.05);
     this.add(light);
   }
 
@@ -244,16 +246,23 @@ export default class Scene extends THREE.Scene {
 
   private addMoon() {
     const moon = new Moon();
-    moon.figure.position.set(-150, 0, 100);
+    moon.figure.position.set(-150, 0, 200);
     this.objects.push(moon);
     this.add(moon.figure);
   }
 
   private addEarth() {
     const earth = new Earth();
-    earth.figure.position.set(450, 0, 100);
+    earth.figure.position.set(450, 0, 200);
     this.objects.push(earth);
     this.add(earth.figure);
+  }
+
+  private addSun() {
+    const sun = new Sun();
+    sun.figure.position.set(0, 0, -700);
+    this.objects.push(sun);
+    this.add(sun.figure);
   }
 
   private addMetallicSphere() {
