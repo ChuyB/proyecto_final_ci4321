@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
+import SpaceThrusterParticles from './SpaceThrusterParticles';
 import Primitive from "./primitives/Primitive";
 import Scene from "../utils/Scene";
 
@@ -19,6 +20,7 @@ export class Spaceship extends Primitive {
   private speedLevel: 0 | 1 | 2 | 3 | -1 | -2 | -3;
   private shouldStop: boolean;
   private spotLight: THREE.SpotLight;
+  public thrusterParticles: SpaceThrusterParticles;
 
   constructor(scene: Scene) {
     super();
@@ -46,6 +48,10 @@ export class Spaceship extends Primitive {
     const objLoader = new OBJLoader();
     const textureLoader = new THREE.TextureLoader();
     textureLoader.setPath(modelDir);
+
+    const textureLoader2 = new THREE.TextureLoader();
+    const particleTexture = textureLoader2.load('/src/assets/particle/Particle_ExpLight.png'); // Reemplaza con la ruta de tu textura
+    this.thrusterParticles = new SpaceThrusterParticles(scene, particleTexture);
 
     mtlLoader.setPath(modelDir);
     mtlLoader.load("ship.mtl", (materials) => {
@@ -201,6 +207,27 @@ export class Spaceship extends Primitive {
     this.figure.position.add(forward);
   }
 
+  updateEachParticle() {
+    if (!this.figure) return;
+    this.thrusterParticles.setEmitterPosition(this.figure.position);
+          // Obtener la dirección de la nave
+          const shipDirection = new THREE.Vector3();
+          this.figure.getWorldDirection(shipDirection);
+          shipDirection.normalize(); // Normalizar la dirección de la nave
+        
+          for (let i = 0; i < this.thrusterParticles.maxParticles; i++) {
+            
+            // Generate a direction vector with a small random offset for a more controlled distribution
+            const offset = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.1, // Small random offset in X
+              (Math.random() - 0.5) * 0.1, // Small random offset in Y
+              (Math.random() - 0.5) * 0.1  // Small random offset in Z
+            );
+            const direction = shipDirection.clone().add(offset).normalize();
+        
+            this.thrusterParticles.setInitialPositionAndDirection(i, offset, direction);
+    }
+  }
   private setControls() {
     const acc = 30;
     window.addEventListener("keydown", (event) => {
