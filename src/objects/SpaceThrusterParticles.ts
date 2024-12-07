@@ -1,14 +1,15 @@
 import * as THREE from "three";
 
-class SpaceThrusterParticles  {
+class SpaceThrusterParticles {
   private particles: THREE.InstancedMesh;
-  private maxParticles: number = 600;
+  public maxParticles: number = 200;
   private velocities: THREE.Vector3[] = [];
   private lifetimes: number[] = [];
   private time: number[] = [];
   private sizes: number[] = [];
   private opacities: number[] = [];
   private acceleration: THREE.Vector3;
+  private emitterPosition: THREE.Vector3;
 
   constructor(scene: THREE.Scene, texture: THREE.Texture) {
     const geometry = new THREE.SphereGeometry(0.1, 8, 8); // 3D particles
@@ -20,23 +21,25 @@ class SpaceThrusterParticles  {
     });
 
     this.particles = new THREE.InstancedMesh(geometry, material, this.maxParticles);
+    this.emitterPosition = new THREE.Vector3(0, 0, -2);
 
     // Initialize particle data
     for (let i = 0; i < this.maxParticles; i++) {
-      const position = new THREE.Vector3(0, 0, 0);
-      const velocity = new THREE.Vector3(
-        (Math.random() - 0.5) * 3, // Reduced initial velocity in X
-        (Math.random() - 0.5) * 3, // Reduced initial velocity in Y
-        -Math.random() * 1.5 - 1 // Initial velocity in Z
-      );
-      this.velocities.push(velocity);
-      this.lifetimes.push(Math.random() * 1 + 0.5);
+      this.velocities.push(new THREE.Vector3());
+      this.lifetimes.push(Math.random() * 15 + 0.5);
       this.time.push(0);
-      this.sizes.push(Math.random() * 0.2 + 0.1);
+      this.sizes.push(Math.random() * 2 + 0.1);
       this.opacities.push(1);
 
-      const dummy = new THREE.Object3D();
-      dummy.position.copy(position);
+      const dummy = new THREE.Mesh(geometry, material);
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const radius = 0.5; // Adjust the radius as needed
+      dummy.position.set(
+        radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.sin(phi) * Math.sin(theta),
+        radius * Math.cos(phi)
+      );
       dummy.scale.set(this.sizes[i], this.sizes[i], this.sizes[i]);
       dummy.updateMatrix();
       this.particles.setMatrixAt(i, dummy.matrix);
@@ -48,8 +51,23 @@ class SpaceThrusterParticles  {
     scene.add(this.particles);
   }
 
-  update(delta: number) {
+  setEmitterPosition(position: THREE.Vector3) {
+    this.emitterPosition.copy(position);
+  }
+
+  setInitialPositionAndDirection(index: number, position: THREE.Vector3, direction: THREE.Vector3) {
+    const dummy = new THREE.Mesh(this.particles.geometry, this.particles.material);
+    dummy.position.copy(position).add(this.emitterPosition);
+    this.velocities[index].copy(direction);
+    dummy.scale.set(this.sizes[index], this.sizes[index], this.sizes[index]);
+    dummy.updateMatrix();
+    this.particles.setMatrixAt(index, dummy.matrix);
+  }
+
+  update(delta: number, position: THREE.Vector3) {
     const dummy = new THREE.Object3D();
+
+    this.setEmitterPosition(position);
 
     for (let i = 0; i < this.maxParticles; i++) {
       this.time[i] += delta;
@@ -57,21 +75,32 @@ class SpaceThrusterParticles  {
       // Reset particle if lifetime exceeded
       if (this.time[i] > this.lifetimes[i]) {
         this.time[i] = 0;
-        this.lifetimes[i] = Math.random() * 1 + 0.5;
+        this.lifetimes[i] = Math.random() * 2 + 0.5;
         this.velocities[i].set(
-          (Math.random() - 0.5) * 3, // Reduced initial velocity in X
-          (Math.random() - 0.5) * 3, // Reduced initial velocity in Y
-          -Math.random() * 1.5 - 1 // Initial velocity in Z
+          0,
+          0,
+          -1 // Move in a specific direction (e.g., along the negative Z-axis)
         );
-        dummy.position.set(0, 0, 0);
-        this.sizes[i] = Math.random() * 0.2 + 0.1;
+        dummy.position.copy(this.emitterPosition);
+        this.sizes[i] = Math.max(0.1, Math.min(2, this.sizes[i] * 1.05)); // Keeps size within limits
         this.opacities[i] = 1;
+        dummy.rotation.set(
+          Math.random() * 2 * Math.PI,
+          Math.random() * 2 * Math.PI,
+          Math.random() * 2 * Math.PI
+        );
       }
 
       // Apply the constant acceleration to the particle's velocity
       this.velocities[i].add(this.acceleration.clone().multiplyScalar(delta));
 
-      dummy.position.add(this.velocities[i].clone().multiplyScalar(delta));
+      // Add a small random offset to the direction
+      const offset = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.1,
+        (Math.random() - 0.5) * 0.1,
+        0
+      );
+      dummy.position.add(this.velocities[i].clone().multiplyScalar(delta)).add(offset);
       dummy.scale.set(this.sizes[i], this.sizes[i], this.sizes[i]);
       this.opacities[i] -= delta / this.lifetimes[i];
       dummy.updateMatrix();
@@ -81,3 +110,5 @@ class SpaceThrusterParticles  {
     this.particles.instanceMatrix.needsUpdate = true;
   }
 }
+
+export default SpaceThrusterParticles;
