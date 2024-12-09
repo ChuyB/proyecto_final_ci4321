@@ -26,9 +26,9 @@ class SpaceThrusterParticles {
     // Initialize particle data
     for (let i = 0; i < this.maxParticles; i++) {
       this.velocities.push(new THREE.Vector3());
-      this.lifetimes.push(Math.random() * 15 + 0.5);
+      this.lifetimes.push(Math.random() * 0.1 + 0.5);
       this.time.push(0);
-      this.sizes.push(Math.random() * 2 + 0.1);
+      this.sizes.push(Math.random() * 3 + 0.1);
       this.opacities.push(1);
 
       const dummy = new THREE.Mesh(geometry, material);
@@ -64,50 +64,51 @@ class SpaceThrusterParticles {
     this.particles.setMatrixAt(index, dummy.matrix);
   }
 
-  update(delta: number, position: THREE.Vector3) {
-    const dummy = new THREE.Object3D();
-
-    this.setEmitterPosition(position);
-
-    for (let i = 0; i < this.maxParticles; i++) {
-      this.time[i] += delta;
-
-      // Reset particle if lifetime exceeded
-      if (this.time[i] > this.lifetimes[i]) {
-        this.time[i] = 0;
-        this.lifetimes[i] = Math.random() * 2 + 0.5;
-        this.velocities[i].set(
-          0,
-          0,
-          -1 // Move in a specific direction (e.g., along the negative Z-axis)
-        );
-        dummy.position.copy(this.emitterPosition);
-        this.sizes[i] = Math.max(0.1, Math.min(2, this.sizes[i] * 1.05)); // Keeps size within limits
-        this.opacities[i] = 1;
-        dummy.rotation.set(
-          Math.random() * 2 * Math.PI,
-          Math.random() * 2 * Math.PI,
-          Math.random() * 2 * Math.PI
-        );
+    update(delta: number, position: THREE.Vector3, direction: THREE.Vector3) {
+      const dummy = new THREE.Object3D();
+  
+      // Ajusta la posición del emisor para que esté justo detrás del cohete
+      this.setEmitterPosition(position.clone().sub(direction.clone().multiplyScalar(10)));
+  
+      for (let i = 0; i < this.maxParticles; i++) {
+          this.time[i] += delta;
+  
+          // Reset particle if lifetime exceeded
+          if (this.time[i] > this.lifetimes[i]) {
+              this.time[i] = 0;
+              this.lifetimes[i] = Math.random() * 2 + 0.5;
+              dummy.position.copy(this.emitterPosition);
+              this.sizes[i] = Math.random() * 2 + 0.1;
+              this.opacities[i] = 1;
+  
+              // Inicializa la velocidad en la dirección opuesta al cohete
+              this.velocities[i] = direction.clone().multiplyScalar(-Math.random() * 5 - 5);
+          }
+  
+          // Añade una aceleración para que las partículas se desaceleren
+          this.velocities[i].add(direction.clone().multiplyScalar(delta * 2));
+  
+          // Actualiza la posición de la partícula
+          dummy.position.add(this.velocities[i].clone().multiplyScalar(delta));
+  
+          // Añade un pequeño desplazamiento aleatorio para simular turbulencia
+          const offset = new THREE.Vector3(
+              (Math.random() - 0.5) * 0.3,
+              (Math.random() - 0.5) * 0.3,
+              (Math.random() - 0.5) * 0.3
+          );
+          dummy.position.add(offset);
+  
+          // Actualiza la escala y la opacidad de la partícula
+          dummy.scale.set(this.sizes[i], this.sizes[i], this.sizes[i]);
+          this.opacities[i] -= delta / this.lifetimes[i];
+          dummy.updateMatrix();
+  
+          // Copia la posición y la matriz de transformación a la instancia de la partícula
+          this.particles.setMatrixAt(i, dummy.matrix);
       }
-
-      // Apply the constant acceleration to the particle's velocity
-      this.velocities[i].add(this.acceleration.clone().multiplyScalar(delta));
-
-      // Add a small random offset to the direction
-      const offset = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.1,
-        (Math.random() - 0.5) * 0.1,
-        0
-      );
-      dummy.position.add(this.velocities[i].clone().multiplyScalar(delta)).add(offset);
-      dummy.scale.set(this.sizes[i], this.sizes[i], this.sizes[i]);
-      this.opacities[i] -= delta / this.lifetimes[i];
-      dummy.updateMatrix();
-      this.particles.setMatrixAt(i, dummy.matrix);
-    }
-
-    this.particles.instanceMatrix.needsUpdate = true;
+  
+      this.particles.instanceMatrix.needsUpdate = true;
   }
 }
 

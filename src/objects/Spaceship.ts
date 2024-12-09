@@ -207,27 +207,14 @@ export class Spaceship extends Primitive {
     this.figure.position.add(forward);
   }
 
-  updateEachParticle() {
-    if (!this.figure) return;
-    this.thrusterParticles.setEmitterPosition(this.figure.position);
-          // Obtener la dirección de la nave
-          const shipDirection = new THREE.Vector3();
-          this.figure.getWorldDirection(shipDirection);
-          shipDirection.normalize(); // Normalizar la dirección de la nave
-        
-          for (let i = 0; i < this.thrusterParticles.maxParticles; i++) {
-            
-            // Generate a direction vector with a small random offset for a more controlled distribution
-            const offset = new THREE.Vector3(
-              (Math.random() - 0.5) * 0.1, // Small random offset in X
-              (Math.random() - 0.5) * 0.1, // Small random offset in Y
-              (Math.random() - 0.5) * 0.1  // Small random offset in Z
-            );
-            const direction = shipDirection.clone().add(offset).normalize();
-        
-            this.thrusterParticles.setInitialPositionAndDirection(i, offset, direction);
-    }
+  getShipDirection(): THREE.Vector3 {
+    
+      const shipDirection = new THREE.Vector3();
+      this.figure!.getWorldDirection(shipDirection);
+      shipDirection.normalize(); // Normalizar la dirección de la nave
+      return shipDirection;
   }
+  
   private setControls() {
     const acc = 30;
     window.addEventListener("keydown", (event) => {
