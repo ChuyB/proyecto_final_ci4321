@@ -50,8 +50,8 @@ export class Spaceship extends Primitive {
     textureLoader.setPath(modelDir);
 
     const textureLoader2 = new THREE.TextureLoader();
-    const particleTexture = textureLoader2.load('/src/assets/particle/Particle_ExpLight.png'); // Reemplaza con la ruta de tu textura
-    this.thrusterParticles = new SpaceThrusterParticles(scene, particleTexture);
+    const particleTexture = textureLoader2.load('/src/assets/particle/Particle_ExpLight.png'); // Textura de las partículas
+    this.thrusterParticles = new SpaceThrusterParticles(scene, particleTexture, this.camera);
 
     mtlLoader.setPath(modelDir);
     mtlLoader.load("ship.mtl", (materials) => {
@@ -114,15 +114,44 @@ export class Spaceship extends Primitive {
 
     // Actualiza sólo si ningún click se ha producido
     if (!this.mousePressed) {
-      // Actualiza la posición de la cámara para que siga a la nave
-      const offset = new THREE.Vector3(0, 7, -30);
-      const cameraPosition = this.figure.position
-        .clone()
-        .add(offset.applyQuaternion(this.figure.quaternion));
-      this.camera.position.lerp(cameraPosition, 0.1);
-      this.camera.lookAt(this.figure.position);
+        // Actualiza la posición de la cámara para que siga a la nave
+        const offset = new THREE.Vector3(0, 7, -30);
+        const cameraPosition = this.figure.position
+            .clone()
+            .add(offset.applyQuaternion(this.figure.quaternion));
+        this.camera.position.lerp(cameraPosition, 0.5);
+    
+        // Ajusta la orientación de la cámara para que mire hacia la nave y el sistema de partículas
+        const lookAtPosition = this.figure.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(this.figure.quaternion));
+        this.camera.lookAt(lookAtPosition);
     }
+
+    // Asegúrate de que las partículas se rendericen correctamente
+    if (Array.isArray(this.thrusterParticles.particles.material)) {
+      this.thrusterParticles.particles.material.forEach(material => {
+        material.depthTest = false;
+      });
+    } else {
+      this.thrusterParticles.particles.material.depthTest = false;
+    }
+    this.thrusterParticles.particles.renderOrder = 999;
   }
+
+  getCameraPosition(): THREE.Vector3 {
+    const offset = new THREE.Vector3(0, 7, -30);
+    const cameraPosition = this.figure!.position
+        .clone()
+        .add(offset.applyQuaternion(this.figure!.quaternion));
+    return cameraPosition;
+  }
+
+  getLookAtPosition(): THREE.Vector3 {
+      const lookAtOffset = new THREE.Vector3(0, 0, -10);
+      const lookAtPosition = this.figure!.position
+          .clone()
+          .add(lookAtOffset.applyQuaternion(this.figure!.quaternion));
+      return lookAtPosition;
+}
 
   private updateRotation(deltaTime: number) {
     if (this.figure === undefined) return;
@@ -205,6 +234,7 @@ export class Spaceship extends Primitive {
     this.figure.getWorldDirection(forward);
     forward.normalize().multiplyScalar(this.speed);
     this.figure.position.add(forward);
+    this.thrusterParticles.update(deltaTime, this.figure.position, this.getShipDirection());
   }
 
   getShipDirection(): THREE.Vector3 {

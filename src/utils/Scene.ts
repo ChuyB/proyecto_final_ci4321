@@ -67,8 +67,6 @@ export default class Scene extends THREE.Scene {
     this.objects.forEach((object) => {
       object.update(time);
     });
-
-    this.spaceship.thrusterParticles.update(time, this.spaceship.figure!.position, this.spaceship.getShipDirection());
   };
 
   /**
