@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
+import SpaceThrusterParticles from './SpaceThrusterParticles';
 import Primitive from "./primitives/Primitive";
 import Scene from "../utils/Scene";
 
@@ -18,9 +19,12 @@ export class Spaceship extends Primitive {
   private maxSpeed: number;
   private speedLevel: 0 | 1 | 2 | 3 | -1 | -2 | -3;
   private shouldStop: boolean;
+  private spotLight: THREE.SpotLight;
+  public thrusterParticles: SpaceThrusterParticles;
 
   constructor(scene: Scene) {
     super();
+    this.scene = scene;
     this.camera = scene.camera;
     this.speed = 0;
     this.acceleration = 0;
@@ -36,6 +40,7 @@ export class Spaceship extends Primitive {
     this.maxSpeed = 0;
     this.speedLevel = 0;
     this.shouldStop = false;
+    this.spotLight = new THREE.SpotLight(0xffffff, 0);
 
     const modelDir = "src/assets/models/ship/";
 
@@ -43,6 +48,10 @@ export class Spaceship extends Primitive {
     const objLoader = new OBJLoader();
     const textureLoader = new THREE.TextureLoader();
     textureLoader.setPath(modelDir);
+
+    const textureLoader2 = new THREE.TextureLoader();
+    const particleTexture = textureLoader2.load('/src/assets/particle/Particle_ExpLight.png'); // Textura de las partículas
+    this.thrusterParticles = new SpaceThrusterParticles(scene, particleTexture, this.camera);
 
     mtlLoader.setPath(modelDir);
     mtlLoader.load("ship.mtl", (materials) => {
@@ -65,6 +74,7 @@ export class Spaceship extends Primitive {
         const scale = 0.01;
         object.scale.set(scale, scale, scale);
         this.figure = object;
+        this.setLight();
         scene.objects.push(this);
         scene.add(this.figure);
 
@@ -72,6 +82,25 @@ export class Spaceship extends Primitive {
         this.setControls();
       });
     });
+  }
+
+  setLight() {
+    if (this.figure === undefined) return;
+
+    this.spotLight.visible = true;
+    this.spotLight.angle = Math.PI / 4;
+    this.spotLight.penumbra = 0.5;
+    this.spotLight.decay = 1.5;
+    this.spotLight.distance = 200;
+
+    this.spotLight.castShadow = true;
+    this.spotLight.shadow.camera.near = 10;
+    this.spotLight.shadow.camera.far = 200;
+
+    this.spotLight.position.set(0, 0, -1);
+    this.spotLight.target = this.figure;
+
+    this.figure.add(this.spotLight);
   }
 
   update(deltaTime: number) {
@@ -85,15 +114,44 @@ export class Spaceship extends Primitive {
 
     // Actualiza sólo si ningún click se ha producido
     if (!this.mousePressed) {
-      // Actualiza la posición de la cámara para que siga a la nave
-      const offset = new THREE.Vector3(0, 7, -30);
-      const cameraPosition = this.figure.position
-        .clone()
-        .add(offset.applyQuaternion(this.figure.quaternion));
-      this.camera.position.lerp(cameraPosition, 0.1);
-      this.camera.lookAt(this.figure.position);
+        // Actualiza la posición de la cámara para que siga a la nave
+        const offset = new THREE.Vector3(0, 7, -30);
+        const cameraPosition = this.figure.position
+            .clone()
+            .add(offset.applyQuaternion(this.figure.quaternion));
+        this.camera.position.lerp(cameraPosition, 0.5);
+    
+        // Ajusta la orientación de la cámara para que mire hacia la nave y el sistema de partículas
+        const lookAtPosition = this.figure.position.clone().add(new THREE.Vector3(0, 0, -10).applyQuaternion(this.figure.quaternion));
+        this.camera.lookAt(lookAtPosition);
     }
+
+    // Asegúrate de que las partículas se rendericen correctamente
+    if (Array.isArray(this.thrusterParticles.particles.material)) {
+      this.thrusterParticles.particles.material.forEach(material => {
+        material.depthTest = false;
+      });
+    } else {
+      this.thrusterParticles.particles.material.depthTest = false;
+    }
+    this.thrusterParticles.particles.renderOrder = 999;
   }
+
+  getCameraPosition(): THREE.Vector3 {
+    const offset = new THREE.Vector3(0, 7, -30);
+    const cameraPosition = this.figure!.position
+        .clone()
+        .add(offset.applyQuaternion(this.figure!.quaternion));
+    return cameraPosition;
+  }
+
+  getLookAtPosition(): THREE.Vector3 {
+      const lookAtOffset = new THREE.Vector3(0, 0, -10);
+      const lookAtPosition = this.figure!.position
+          .clone()
+          .add(lookAtOffset.applyQuaternion(this.figure!.quaternion));
+      return lookAtPosition;
+}
 
   private updateRotation(deltaTime: number) {
     if (this.figure === undefined) return;
@@ -176,8 +234,17 @@ export class Spaceship extends Primitive {
     this.figure.getWorldDirection(forward);
     forward.normalize().multiplyScalar(this.speed);
     this.figure.position.add(forward);
+    this.thrusterParticles.update(deltaTime, this.figure.position, this.getShipDirection());
   }
 
+  getShipDirection(): THREE.Vector3 {
+    
+      const shipDirection = new THREE.Vector3();
+      this.figure!.getWorldDirection(shipDirection);
+      shipDirection.normalize(); // Normalizar la dirección de la nave
+      return shipDirection;
+  }
+  
   private setControls() {
     const acc = 30;
     window.addEventListener("keydown", (event) => {
@@ -218,6 +285,9 @@ export class Spaceship extends Primitive {
           if (this.speedLevel === 0) {
             this.shouldStop = true;
           }
+          break;
+        case "l":
+          this.spotLight.intensity = this.spotLight.intensity === 0 ? 100 : 0;
           break;
         default:
           break;

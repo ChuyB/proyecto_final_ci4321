@@ -1,10 +1,10 @@
-# Proyecto 02 - ThreeJS
+# Proyecto Final - ThreeJS
 ## Integrantes
 Jeamhowards Montiel, 19-10234  
 Jesús Bovea, 19-10072
 
 ## Descripción
-Este repositorio contiene el código del **Proyecto 2** desarrollado en **ThreeJS**
+Este repositorio contiene el código del **Proyecto Final** desarrollado en **ThreeJS**
 
 ## Controles
 La nave se puede mover con:
@@ -16,6 +16,7 @@ La nave se puede mover con:
 - e: Rotar hacia la derecha.
 - r: Acelerar.
 - f: Desacelerar.
+- l: Encender/apagar spotlight de la nave.
 - espacio: Detenerse (solo si no se está acelerando o desacelerando).
 
 ## Sistema operativo
@@ -32,13 +33,13 @@ Para poder ejecutar el proyecto, es necesario tener instalado:
 Clonar el repositorio:
 
 ```sh
-git clone https://github.com/ChuyB/proyecto_02_ci4321
+git clone https://github.com/ChuyB/proyecto_final_ci4321
 ```
 
 Cambiar al directorio del repositorio:
 
 ```sh
-cd proyecto_02_ci4321
+cd proyecto_final_ci4321
 ```
 
 Instalar las dependencias:
